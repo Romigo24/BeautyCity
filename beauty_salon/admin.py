@@ -15,16 +15,16 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('phone', )
+    list_display = ("phone", )
 
 
 @admin.register(Salon)
 class SalonAdmin(admin.ModelAdmin):
-    list_display = [
-        'name',
-        'address',
-        'contact_phone',
-    ]
+    list_display = (
+        "name",
+        "address",
+        "contact_phone",
+    )
     inlines = [
         SalonServicePriceInline
     ]
@@ -32,9 +32,9 @@ class SalonAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = [
-        'name',
-    ]
+    list_display = (
+        "name",
+    )
     inlines = [
         SalonServicePriceInline
     ]
@@ -42,15 +42,14 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Master)
 class MasterAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ("name", )
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        'phone',
-        'status',
-        'record_time_at',
+        "phone",
+        "status",
     )
 
     inlines = [OrderItemInline]

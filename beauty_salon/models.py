@@ -9,7 +9,7 @@ class UserProfile(models.Model):
         region="RU",
     )
     avatar = models.ImageField(
-        upload_to="avatars/",
+        upload_to="media/avatars/",
         null=True,
         blank=True,
     )
@@ -64,7 +64,8 @@ class Salon(models.Model):
         blank=True,
     )
     image = models.ImageField(
-        "Картинка",
+        upload_to="media/salon_img/",
+        verbose_name="Картинка",
         blank=True,
     )
 
@@ -82,7 +83,8 @@ class Master(models.Model):
         verbose_name="Мастер",
     )
     image = models.ImageField(
-        "Картинка",
+        verbose_name="Картинка",
+        upload_to="media/master_img/",
         blank=True,
     )
 
@@ -100,18 +102,24 @@ class SalonServicePrice(models.Model):
         related_name="salons",
         verbose_name="Салон",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     service = models.ForeignKey(
         Service,
         on_delete=models.CASCADE,
         related_name="services",
         verbose_name="Услуга",
+        null=True,
+        blank=True,
     )
     master = models.ForeignKey(
         Master,
         on_delete=models.CASCADE,
         related_name="masters",
         verbose_name="Мастер",
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -126,17 +134,6 @@ class SalonServicePrice(models.Model):
 
 
 class Order(models.Model):
-    ORDER_TIME = (
-        ("10:00", "10:00"),
-        ("11:00", "11:00"),
-        ("12:00", "12:00"),
-        ("13:00", "13:00"),
-        ("15:00", "15:00"),
-        ("16:00", "16:00"),
-        ("17:00", "17:00"),
-        ("18:00", "18:00"),
-        ("19:00", "19:00"),
-    )
     PAYMENT_TYPE = (
         ("cash", "Наличностью"),
         ("e_pay", "Электронно"),
@@ -152,11 +149,6 @@ class Order(models.Model):
         choices=ORDER_STATUS,
         default="recorded"
     )
-    record_time_at = models.DateTimeField(
-        verbose_name="Время записи",
-        max_length=20,
-        choices=ORDER_TIME,
-    )
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
@@ -167,15 +159,32 @@ class Order(models.Model):
         verbose_name_plural = "Заказы"
 
     def __str__(self):
-        return f"Пользователь [{self.phone}] Время: {self.record_time_at} Цена: {self.price_at_order}"
+        return f"Пользователь [{self.phone}]"
 
 
 class OrderService(models.Model):
+    ORDER_TIME = (
+        ("10:00", "10:00"),
+        ("11:00", "11:00"),
+        ("12:00", "12:00"),
+        ("13:00", "13:00"),
+        ("15:00", "15:00"),
+        ("16:00", "16:00"),
+        ("17:00", "17:00"),
+        ("18:00", "18:00"),
+        ("19:00", "19:00"),
+    )
     master = models.ForeignKey(
         Master,
         on_delete=models.CASCADE,
-        related_name="items",
-        verbose_name="Услуга",
+        related_name="master_services",
+        verbose_name="Мастер",
+    )
+    salon = models.ForeignKey(
+        Salon,
+        related_name="salon_services",
+        verbose_name="Салон",
+        on_delete=models.CASCADE,
     )
     order = models.ForeignKey(
         Order,
@@ -183,12 +192,20 @@ class OrderService(models.Model):
         related_name="orders",
         verbose_name="Запись",
     )
-
-    price = models.DecimalField(
-        max_digits=7,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        verbose_name="Цена",
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="service_items",
+        verbose_name="Услуга",
+        null=True,
+        blank=True,
+    )
+    record_time_at = models.CharField(
+        verbose_name="Время записи",
+        max_length=20,
+        choices=ORDER_TIME,
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -196,4 +213,4 @@ class OrderService(models.Model):
         verbose_name_plural = "элементы записи"
 
     def __str__(self):
-        return f"{self.master.name} {self.master.price}"
+        return f"{self.master.name}"

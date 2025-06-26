@@ -12,10 +12,10 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" integrity="sha512-17EgCFERpgZKcm0j0fEq1YCJuyAWdz9KUtv1EjVuaOz8pDnh/0nZxmU6BBXwaaxqoi9PQXnRWqlcDB027hgv9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <!-- 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css.map">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css.map"> -->
-	<link rel="stylesheet" href="css/bootstrap-grid.min.css">
-	<link rel="stylesheet" href="css/air-datepicker.css">
-	<script src="js/air-datepicker.js"></script>
-	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/air-datepicker.css' %}">
+	<script src="{% static 'js/air-datepicker.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body class="servicePage">
 	<section id="mobMenu">
@@ -25,11 +25,11 @@
 					<div class="row">
 						<div class="col-4 col-md-3">
 							<a href="/">
-								<img src="img/Logo.svg" alt="Logo" class="logo header__logo">
+								<img src="{% static 'img/Logo.svg' %}" alt="Logo" class="logo header__logo">
 							</a>
 						</div>
 						<div class="col-3 col-md-2">
-							<img src="img/x.svg" alt="x" class="mobMenuClose">
+							<img src="{% static 'img/x.svg' %}" alt="x" class="mobMenuClose">
 						</div>
 					</div>
 				</div>
@@ -63,29 +63,67 @@
 			<div class="header">
 				<div class="row">
 					<div class="col-2 col-md-2 mob">
-						<img src="img/hamburger.svg" alt="hamburger" class="header__mobMenu">
+						<img src="{% static 'img/hamburger.svg' %}" alt="hamburger" class="header__mobMenu">
 					</div>
 					<div class="col-5 col-md-3 col-lg-2">
 						<a href="/">
-							<img src="img/Logo.svg" alt="Logo" class="logo header__logo">
+							<img src="{% static 'img/Logo.svg' %}" alt="Logo" class="logo header__logo">
 						</a>
 					</div>
 					<div class="col-md-5 ">
 						<nav>
 						<ul class="menu">
-							<li class="menu__item"><a href="#" class="menu__item_link">Мастера</a></li>
-							<li class="menu__item"><a href="#" class="menu__item_link">Услуги</a></li>
-							<li class="menu__item"><a href="#" class="menu__item_link">Отзывы</a></li>
-							<li class="menu__item"><a href="#" class="menu__item_link">Контакты</a></li>
+							<li class="menu__item"><a href="/#masters" class="menu__item_link">Мастера</a></li>
+							<li class="menu__item"><a href="/#services" class="menu__item_link">Услуги</a></li>
+							<li class="menu__item"><a href="/#reviews" class="menu__item_link">Отзывы</a></li>
+							<li class="menu__item"><a href="/#contacts" class="menu__item_link">Контакты</a></li>
 						</ul>
 					</nav>
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
+						{% if user.is_authenticated %}
+							<div class="accaunt__settings fic">
+								{% if user.avatar %}
+								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								{% else %}
+									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+								</span>
+								{% endif %}
+							</div>
+						{% else %}
+
 						<div class="header__block">
-						<button class="header__block_btn">Перезвоните мне</button>
+						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+						{% endif %}
+						{% comment %} {% if user.is_authenticated %}
+							<div class="header__block">
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<span class="header__block_auth__intro">
+								{{ user.username }}
+							</span>
+							</div>
+						{% else %}
+
+						<div class="header__block">
+						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+						<div>
+							<a href="{% url 'beauty_salon:register' %}">
+								<span class="header__block_auth__intro">
+									Регистрация
+								</span>
+							</a>
+						</div>
 						<div class="header__block_auth">
-							<img src="img/acc.svg" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Войти</span>
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<span class="header__block_auth__intro">
+									Войти
+								{% endif %} {% endcomment %}
+							</span>
 						</div>
 					</div>
 					</div>
@@ -272,15 +310,15 @@
 				<div class="footer__block">
 					<div class="row">
 						<div class="col-md-3 col-lg-2">
-							<a href="/"><img src="img/Logo.svg" alt="logo" class="footer__logo"></a>
+							<a href="/"><img src="{% static 'img/Logo.svg' %}" alt="logo" class="footer__logo"></a>
 						</div>
 						<div class="col-md-5 minMobHide">
 							<nav>
 								<ul class="menu">
-									<li class="menu__item"><a href="#" class="menu__item_link">Мастера</a></li>
-									<li class="menu__item"><a href="#" class="menu__item_link">Услуги</a></li>
-									<li class="menu__item"><a href="#" class="menu__item_link">Отзывы</a></li>
-									<li class="menu__item"><a href="#" class="menu__item_link">Контакты</a></li>
+									<li class="menu__item"><a href="/#masters" class="menu__item_link">Мастера</a></li>
+									<li class="menu__item"><a href="/#services" class="menu__item_link">Услуги</a></li>
+									<li class="menu__item"><a href="/#reviews" class="menu__item_link">Отзывы</a></li>
+									<li class="menu__item"><a href="/#contacts" class="menu__item_link">Контакты</a></li>
 								</ul>
 							</nav>
 						</div>
@@ -300,10 +338,10 @@
 							<div class="col-md-5 minMobShow">
 								<nav>
 									<ul class="menu">
-										<li class="menu__item"><a href="#" class="menu__item_link">Мастера</a></li>
-										<li class="menu__item"><a href="#" class="menu__item_link">Услуги</a></li>
-										<li class="menu__item"><a href="#" class="menu__item_link">Отзывы</a></li>
-										<li class="menu__item"><a href="#" class="menu__item_link">Контакты</a></li>
+										<li class="menu__item"><a href="/#masters" class="menu__item_link">Мастера</a></li>
+										<li class="menu__item"><a href="/#services" class="menu__item_link">Услуги</a></li>
+										<li class="menu__item"><a href="/#reviews" class="menu__item_link">Отзывы</a></li>
+										<li class="menu__item"><a href="/#contacts" class="menu__item_link">Контакты</a></li>
 									</ul>
 								</nav>
 							</div>
@@ -320,10 +358,10 @@
 							</div>
 							<div class="col-md-3 col-lg-2">
 								<div class="footer__social fic">
-									<a href=""><img src="img/waGray.svg" alt="wa" class="contacts__social_icon"></a>
-									<a href=""><img src="img/vkGray.svg" alt="vk" class="contacts__social_icon"></a>
-									<a href=""><img src="img/tgGray.svg" alt="tg" class="contacts__social_icon"></a>
-									<a href=""><img src="img/instaGray.svg" alt="insta" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/waGray.svg' %}" alt="wa" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/vkGray.svg' %}" alt="vk" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/tgGray.svg' %}" alt="tg" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/instaGray.svg' %}" alt="insta" class="contacts__social_icon"></a>
 								</div>
 							</div>
 						</div>
@@ -339,6 +377,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" integrity="sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	
-	<script src="js/main.js"></script>
+	<script src="{% static 'js/air-datepicker.js' %}"></script>
+	<script src="{% static 'js/jquery.arcticmodal-0.3.min.js' %}"></script>
+	<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

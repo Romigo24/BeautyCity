@@ -178,6 +178,7 @@ class Order(models.Model):
         ("recorded", "Записан"),
         ("completed", "Выполнен"),
         ("canceled", "Отменен"),
+        ("call", "Консультация"),
     )
     status = models.CharField(
         verbose_name="Статус записи",
@@ -188,6 +189,20 @@ class Order(models.Model):
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
+    )
+    payment = models.CharField(
+        verbose_name='Тип оплаты',
+        max_length=15,
+        choices=PAYMENT_TYPE,
+        default='cash',
+        blank=True,
+        null=True,
+    )
+    comment = models.TextField(
+        verbose_name="Комментарий",
+        max_length=250,
+        blank=True,
+        null=True
     )
 
     class Meta:

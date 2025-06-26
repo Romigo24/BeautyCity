@@ -1,4 +1,4 @@
-from beauty_salon.models import Feedback, Master, Salon, Service
+from beauty_salon.models import Feedback, Master, Order, Salon, Service
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -7,6 +7,17 @@ from .forms import LoginForm, RegisterUser
 
 
 def view_index(request):
+    if request.method == "POST":
+        contact_name = request.POST.get('fname')
+        contact_tel = request.POST.get('tel')
+        question = request.POST.get('contactsTextarea')
+
+        Order.objects.create(
+            status="call",
+            phone=contact_tel,
+            comment=f"От {contact_name}\nВопрос: {question}"
+        )
+
     salons = Salon.objects.order_by("name")
     services = Service.objects.all()
     masters = Master.objects.all()

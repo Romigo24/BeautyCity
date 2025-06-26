@@ -55,11 +55,15 @@ class MasterAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        "phone",
+        "get_user",
         "status",
     )
 
     inlines = [OrderItemInline]
+
+    def get_user(self, obj):
+        return f'Заказ клиента - {obj.phone}'
+    get_user.short_description = 'Клиент'
 
 
 @admin.register(Feedback)

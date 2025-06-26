@@ -3,8 +3,8 @@
     "model": "beauty_salon.salon",
     "pk": 1,
     "fields": {
-      "name": "BeautyCity Пушкинская",
-      "address": "ул. Пушкинская, д. 78А",
+      "name": "BeautyCity на Мира",
+      "address": "просп. Мира, 11",
       "contact_phone": "+7 900 111-11-11",
       "image": "static/img/salons/salon1.svg"
     }
@@ -23,8 +23,8 @@
     "model": "beauty_salon.salon",
     "pk": 3,
     "fields": {
-      "name": "BeautyCity Красная",
-      "address": "ул. Красная, д. 10",
+      "name": "BeautyCity Лубянка",
+      "address": "Лубянский пр., 7, стр. 1",
       "contact_phone": "+7 900 111-11-11",
       "image": "static/img/salons/salon3.svg"
     }
@@ -34,7 +34,7 @@
     "pk": 4,
     "fields": {
       "name": "BeautyCity VIP",
-      "address": "ул. Свободы, д. 101",
+      "address": "Лубянский пр., 19, стр. 1",
       "contact_phone": "+7 900 000-00-00",
       "image": "static/img/salons/1.jpg"
     }

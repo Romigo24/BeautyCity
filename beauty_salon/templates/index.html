@@ -95,7 +95,7 @@
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 								<span class="accaunt__ava_name">
-									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+									<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
 								</span>
 								{% endif %}
 							</div>

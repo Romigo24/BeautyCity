@@ -129,7 +129,11 @@
 					<div class="col-3 col-md-2 col-lg-3">
 						{% comment %} {% if user.is_authenticated %} {% endcomment %}
 							<div class="header__block">
-							<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							<a href="{% url 'beauty_salon:call_me' %}" class="menu__item_link">
+								<button class="header__block_btn">
+									Перезвоните мне
+								</button>
+							</a>
 							{% comment %} <div class="header__block_auth">
 								{% if user.avatar %}
 								<img src="{{ user.avatar.url }}" alt="account" class="header__account_img">
@@ -161,7 +165,7 @@
 									{% else %}
 										<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
 									{% endif %}
-									<span class="accaunt__ava_name">{{ user.username }}</span>
+									<span class="accaunt__ava_name" >{{ user.username }}</span>
 								</div>
 							{% comment %} {% else %}
 								<div class="accaunt__ava fic">

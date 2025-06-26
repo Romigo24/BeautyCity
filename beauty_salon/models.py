@@ -204,6 +204,10 @@ class Order(models.Model):
         blank=True,
         null=True
     )
+    personal_data_consent = models.BooleanField(
+        verbose_name="Согласие ОПД",
+        default=False
+    )
 
     class Meta:
         verbose_name = "Заказ"

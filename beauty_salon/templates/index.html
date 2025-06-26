@@ -108,18 +108,18 @@
 								</button>
 							</a>
 							
-							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+							<a href="{% url 'beauty_salon:register' %}" class="menu__item_link">Регистрация</a>
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+							<a href="{% url 'beauty_salon:login' %}" class="menu__item_link">Войти</a>
 						{% endif %}
-						{% comment %} <div class="header__block_auth">
-							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">
-									Войти
-								{% endif %}
-							</span>
-						</div> {% endcomment %}
-					</div>
+							{% comment %} <div class="header__block_auth">
+								<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								<span class="header__block_auth__intro">
+										Войти
+									{% endif %}
+								</span>
+							</div> {% endcomment %}
+						</div>
 					</div>
 				</div>
 			</div>

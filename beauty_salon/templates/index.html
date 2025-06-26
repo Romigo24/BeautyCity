@@ -14,8 +14,16 @@
 	<link rel="stylesheet" href="{% static 'css/simple.css' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
 </head>
 <body>
+	{% if messages %}
+		<ul class="messages">
+			{% for message in messages %}
+				<li class="{{ message.tags }}">{{ message }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
 	<section id="mobMenu">
 			<div class="mobMenu">
 				<div class="container">
@@ -32,6 +40,7 @@
 					</div>
 				</div>
 				<div class="mobMenu__content">
+
 					<div class="row">
 						<div class="col-md-3">
 							<nav>
@@ -93,7 +102,12 @@
 						{% else %}
 
 						<div class="header__block">
-						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							<a href="{% url 'beauty_salon:call_me' %}" class="menu__item_link">
+								<button class="header__block_btn">
+									Перезвоните мне
+								</button>
+							</a>
+							
 							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 							<a href="{% url 'beauty_salon:login' %}">Войти</a>

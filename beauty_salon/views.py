@@ -1,4 +1,5 @@
 from beauty_salon.models import Feedback, Master, Order, Salon, Service
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -34,6 +35,23 @@ def view_index(request):
             "feedbacks": feedbacks,
         }
     )
+
+
+def view_call_me(request):
+    if request.method == "POST":
+        contact_tel = request.POST.get('tel')
+        personal_data_consent = bool(request.POST.get('checkbox'))
+
+        Order.objects.create(
+            status="call",
+            phone=contact_tel,
+            personal_data_consent=personal_data_consent,
+            comment="Перезвонить"
+        )
+        messages.success(request, 'Спасибо, мы вам перезвоним в течение часа.')
+        return redirect("beauty_salon:index")
+
+    return render(request, "call_me.html")
 
 
 def view_service(request):

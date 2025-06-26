@@ -57,12 +57,13 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "get_user",
         "status",
+        "comment",
     )
 
     inlines = [OrderItemInline]
 
     def get_user(self, obj):
-        return f'Заказ клиента - {obj.phone}'
+        return f'Заказ #{obj.id} {obj.phone}'
     get_user.short_description = 'Клиент'
 
 

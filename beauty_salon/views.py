@@ -11,10 +11,12 @@ def view_index(request):
         contact_name = request.POST.get('fname')
         contact_tel = request.POST.get('tel')
         question = request.POST.get('contactsTextarea')
+        personal_data_consent = bool(request.POST.get('checkbox'))
 
         Order.objects.create(
             status="call",
             phone=contact_tel,
+            personal_data_consent=personal_data_consent,
             comment=f"От {contact_name}\nВопрос: {question}"
         )
 

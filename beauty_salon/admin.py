@@ -1,4 +1,4 @@
-from beauty_salon.models import (Master, Order, OrderService, Salon,
+from beauty_salon.models import (Feedback, Master, Order, OrderService, Salon,
                                  SalonServicePrice, Service, UserProfile)
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -49,7 +49,7 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Master)
 class MasterAdmin(admin.ModelAdmin):
-    list_display = ("name", )
+    list_display = ("name", "get_experience",)
 
 
 @admin.register(Order)
@@ -60,3 +60,12 @@ class OrderAdmin(admin.ModelAdmin):
     )
 
     inlines = [OrderItemInline]
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = (
+        "client",
+        "comment",
+        "create_at"
+    )

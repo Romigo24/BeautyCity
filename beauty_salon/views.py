@@ -1,3 +1,4 @@
+from beauty_salon.models import Feedback, Master, Salon, Service
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -6,7 +7,20 @@ from .forms import LoginForm, RegisterUser
 
 
 def view_index(request):
-    return render(request, "index.html")
+    salons = Salon.objects.order_by("name")
+    services = Service.objects.all()
+    masters = Master.objects.all()
+    feedbacks = Feedback.objects.all()
+    return render(
+        request,
+        "index.html",
+        {
+            "salons": salons,
+            "services": services,
+            "masters": masters,
+            "feedbacks": feedbacks,
+        }
+    )
 
 
 def view_service(request):

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -40,6 +42,11 @@ class Service(models.Model):
         blank=True,
         validators=[MinValueValidator(0)]
     )
+    image = models.FileField(
+        upload_to="media/service_img/",
+        verbose_name="Картинка",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Услуга"
@@ -64,7 +71,7 @@ class Salon(models.Model):
         max_length=50,
         blank=True,
     )
-    image = models.ImageField(
+    image = models.FileField(
         upload_to="media/salon_img/",
         verbose_name="Картинка",
         blank=True,
@@ -83,9 +90,20 @@ class Master(models.Model):
         max_length=15,
         verbose_name="Мастер",
     )
-    image = models.ImageField(
+    image = models.FileField(
         verbose_name="Картинка",
         upload_to="media/master_img/",
+        blank=True,
+    )
+    specialty = models.CharField(
+        max_length=35,
+        verbose_name="Специальность",
+        blank=True,
+    )
+    experience_at = models.DateField(
+        max_length=35,
+        verbose_name="Опыт",
+        null=True,
         blank=True,
     )
 
@@ -95,6 +113,23 @@ class Master(models.Model):
 
     def __str__(self):
         return f"Мастер: {self.name}"
+
+    def get_experience(self):
+        if not self.experience_at:
+            return "Нет данных"
+
+        delta = date.today() - self.experience_at
+        years = delta.days // 365
+        months = (delta.days % 365) // 30
+
+        if 11 <= years % 100 <= 14:
+            return f"{years} лет, {months}мес."
+        elif years % 10 == 1:
+            return f"{years} г., {months}мес."
+        elif 2 <= years % 10 <= 4:
+            return f"{years} г., {months}мес."
+        else:
+            return f"{years} лет"
 
 
 class SalonServicePrice(models.Model):
@@ -215,3 +250,27 @@ class OrderService(models.Model):
 
     def __str__(self):
         return f"{self.master.name}"
+
+
+class Feedback(models.Model):
+    client = models.CharField(
+        verbose_name="Кто оставил отзыв",
+        max_length=30,
+        blank=True,
+        null=True
+    )
+    comment = models.TextField(
+        verbose_name="Отзыв",
+        max_length=250,)
+    create_at = models.DateField(
+        verbose_name="Дата создания",
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+
+    def __str__(self):
+        return f"{self.comment}"

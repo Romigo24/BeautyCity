@@ -1,8 +1,9 @@
-from beauty_salon.models import Feedback, Master, Order, Salon, Service
+from beauty_salon.models import Feedback, Master, Order, Salon, Service, OrderService
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.db.models import Prefetch
 
 from .forms import LoginForm, RegisterUser
 
@@ -64,7 +65,36 @@ def view_service_finally(request):
 
 @login_required(login_url="beauty_salon:login")
 def view_notes(request):
-    return render(request, "notes.html")
+    user_profile = request.user
+
+    user_phone = user_profile.phone
+
+    orders = Order.objects.filter(phone=user_phone).prefetch_related(
+        Prefetch('orders', queryset=OrderService.objects.select_related(
+            'service', 'master', 'salon'
+        ).order_by('record_date', 'record_time_at'))
+    )
+
+    upcoming_services = []
+    past_services = []
+
+    for order in orders:
+        for service in order.orders.all():
+            if service.is_upcoming():
+                upcoming_services.append(service)
+            else:
+                past_services.append(service)
+
+    total_amount = sum(
+        service.service.price for service in upcoming_services 
+        if service.service and service.service.price
+    )
+
+    return render(request, 'notes.html', {
+        'upcoming_services': upcoming_services,
+        'past_services': past_services,
+        'total_amount': total_amount
+    })
 
 
 def view_popup(request):

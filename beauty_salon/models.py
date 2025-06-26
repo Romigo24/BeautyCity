@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import date, datetime, time
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -262,13 +263,64 @@ class OrderService(models.Model):
         null=True,
         blank=True,
     )
+    record_date = models.DateField(
+        verbose_name="Дата записи",
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(
+        verbose_name="Дата создания записи",
+        auto_now_add=True
+    )
 
     class Meta:
         verbose_name = "элемент записи"
         verbose_name_plural = "элементы записи"
+        ordering = ['record_date', 'record_time_at']
 
     def __str__(self):
-        return f"{self.master.name}"
+        return f"{self.master.name} - {self.service.name if self.service else 'Услуга не указана'} - {self.record_date} {self.record_time_at}"
+
+    def get_datetime(self):
+        """Возвращает полный datetime записи"""
+        if self.record_date and self.record_time_at:
+            time_obj = datetime.strptime(self.record_time_at, "%H:%M").time()
+            return datetime.combine(self.record_date, time_obj)
+        return None
+
+    def is_upcoming(self):
+        """Проверяет, является ли запись предстоящей"""
+        if not self.record_date or not self.record_time_at:
+            return False
+
+        try:
+            time_obj = datetime.strptime(self.record_time_at, "%H:%M").time()
+            record_datetime = datetime.combine(self.record_date, time_obj)
+            record_datetime = timezone.make_aware(record_datetime)
+            return record_datetime >= timezone.now()
+        except (ValueError, TypeError):
+            return False
+
+    def is_past(self):
+        """Проверяет, является ли запись прошедшей"""
+        return not self.is_upcoming()
+
+    def get_status_display(self):
+        """Возвращает статус записи (для отображения в шаблоне)"""
+        if self.is_upcoming():
+            return "Предстоящая"
+        return "Прошедшая"
+
+    def get_full_date(self):
+        """Возвращает отформатированную дату и время для отображения"""
+        if self.record_date and self.record_time_at:
+            month_names = {
+                1: "января", 2: "февраля", 3: "марта", 4: "апреля",
+                5: "мая", 6: "июня", 7: "июля", 8: "августа",
+                9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"
+            }
+            return f"{self.record_date.day} {month_names[self.record_date.month]} - {self.record_time_at}"
+        return "Дата не указана"
 
 
 class Feedback(models.Model):

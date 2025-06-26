@@ -1,6 +1,7 @@
 from beauty_salon.models import (Master, Order, OrderService, Salon,
                                  SalonServicePrice, Service, UserProfile)
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
 
 class SalonServicePriceInline(admin.TabularInline):
@@ -15,7 +16,13 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("phone", )
+    list_display = ("username", "phone", "email", "is_staff", "is_superuser")
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('phone', 'avatar', 'personal_data_consent')}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('phone', 'avatar', 'personal_data_consent')}),
+    )
 
 
 @admin.register(Salon)

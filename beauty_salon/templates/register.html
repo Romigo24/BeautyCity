@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<body>
+    <section class="register-section">
+        <div class="container">
+            <div class="register-block">
+                <h1 class="register-title">{{ title|default:"Регистрация" }}</h1>
+                <form method="post" class="register-form">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="form-error">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="register-btn">Зарегистрироваться</button>
+                </form>
+                <p class="register-login-link">
+                    Уже есть аккаунт? <a href="{% url 'beauty_salon:login' %}">Войти</a>
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

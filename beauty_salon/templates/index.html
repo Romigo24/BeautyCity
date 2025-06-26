@@ -79,18 +79,35 @@
 					</nav>
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
+						{% if user.is_authenticated %}
+							<div class="accaunt__settings fic">
+								{% if user.avatar %}
+								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								{% else %}
+									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+								</span>
+								{% endif %}
+							</div>
+						{% else %}
+
 						<div class="header__block">
 						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
-						<div class="header__block_auth">
+							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Войти</span>
-						</div>
+							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+						{% endif %}
+						{% comment %} <div class="header__block_auth">
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<span class="header__block_auth__intro">
+									Войти
+								{% endif %}
+							</span>
+						</div> {% endcomment %}
 					</div>
 					</div>
 				</div>
-				
-				
-				
 			</div>
 		</div>
 	</header>
@@ -108,7 +125,7 @@
 									довольных клиентов
 								</p>
 							</div>
-							<a href="/service/"><button class="banner__btn">Записаться</button></a>
+							<a href="service"><button class="banner__btn">Записаться</button></a>
 						</div>
 					</div>
 					<div class="col-md-12 col-lg-5">

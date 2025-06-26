@@ -127,12 +127,18 @@
 					</nav>
 					</div>
 					<div class="col-3 col-md-2 col-lg-3">
-						<div class="header__block">
-						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
-						<div class="header__block_auth">
-							<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Алиса И.</span>
-						</div>
+						{% comment %} {% if user.is_authenticated %} {% endcomment %}
+							<div class="header__block">
+							<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							{% comment %} <div class="header__block_auth">
+								{% if user.avatar %}
+								<img src="{{ user.avatar.url }}" alt="account" class="header__account_img">
+								{% else %}
+								<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								<span class="header__block_auth__intro">{{ user.username }}</span>
+								{% endif %}
+							</div>
+							{% endif %} {% endcomment %}
 					</div>
 					</div>
 				</div>
@@ -148,14 +154,26 @@
 				<div class="row">
 					<div class="col-md-2">
 						<div class="accaunt__left">
-							<div class="accaunt__ava fic">
-								<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
-								<span class="accaunt__ava_name">Алиса И.</span>
-							</div>
+							{% comment %} {% if user.is_authenticated %} {% endcomment %}
+								<div class="accaunt__ava fic">
+									{% if user.avatar %}
+										<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+									{% else %}
+										<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
+									{% endif %}
+									<span class="accaunt__ava_name">{{ user.username }}</span>
+								</div>
+							{% comment %} {% else %}
+								<div class="accaunt__ava fic">
+									<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
+									<span class="accaunt__ava_name">Пришелец</span>
+								</div>
+							{% endif %} {% endcomment %}
 							<div class="accaunt__settings fic">
 								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
-								<a href="#" class="accaunt__settings_out">Выйти</a>
+								<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
 							</div>
+							
 							<nav>
 								<div class="accaunt__menu_title">МЕНЮ</div>
 								<ul class="accaunt__menu">

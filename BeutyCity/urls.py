@@ -1,12 +1,7 @@
 from django.contrib import admin
-from django.urls import path
-from beauty_salon import views
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-    path('service/', views.service, name='service'),
-    path('service-finally/', views.service_finally, name='service_finally'),
-    path('notes/', views.notes, name='notes'),
-    path('popup/', views.popup, name='popup'),
+    path('', include('beauty_salon.urls')),
 ]

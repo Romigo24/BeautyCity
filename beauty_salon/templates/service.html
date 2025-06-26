@@ -81,11 +81,49 @@
 					</nav>
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
+						{% if user.is_authenticated %}
+							<div class="accaunt__settings fic">
+								{% if user.avatar %}
+								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								{% else %}
+									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+								</span>
+								{% endif %}
+							</div>
+						{% else %}
+
 						<div class="header__block">
-						<button class="header__block_btn">Перезвоните мне</button>
+						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+						{% endif %}
+						{% comment %} {% if user.is_authenticated %}
+							<div class="header__block">
+							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+							<span class="header__block_auth__intro">
+								{{ user.username }}
+							</span>
+							</div>
+						{% else %}
+
+						<div class="header__block">
+						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+						<div>
+							<a href="{% url 'beauty_salon:register' %}">
+								<span class="header__block_auth__intro">
+									Регистрация
+								</span>
+							</a>
+						</div>
 						<div class="header__block_auth">
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Войти</span>
+							<span class="header__block_auth__intro">
+									Войти
+								{% endif %} {% endcomment %}
+							</span>
 						</div>
 					</div>
 					</div>

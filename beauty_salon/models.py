@@ -106,7 +106,20 @@ class Master(models.Model):
         null=True,
         blank=True,
     )
-
+    #########
+    services = models.ManyToManyField(
+        'Service',
+        verbose_name="Оказываемые услуги",
+        related_name="masters",
+        blank=True,
+    )
+    salons = models.ManyToManyField(
+        'Salon',
+        verbose_name="Салоны работы",
+        related_name="masters",
+        blank=True,
+    )
+    #######
     class Meta:
         verbose_name = "Мастер"
         verbose_name_plural = "Мастера"
@@ -174,16 +187,27 @@ class Order(models.Model):
         ("cash", "Наличностью"),
         ("e_pay", "Электронно"),
     )
-    ORDER_STATUS = (
+    APPOINTMENT_STATUS = (
         ("recorded", "Записан"),
         ("completed", "Выполнен"),
         ("canceled", "Отменен"),
         ("call", "Консультация"),
     )
+    APPOINTMENT_TIME = (
+        ("10:00", "10:00"),
+        ("11:00", "11:00"),
+        ("12:00", "12:00"),
+        ("13:00", "13:00"),
+        ("15:00", "15:00"),
+        ("16:00", "16:00"),
+        ("17:00", "17:00"),
+        ("18:00", "18:00"),
+        ("19:00", "19:00"),
+    )
     status = models.CharField(
         verbose_name="Статус записи",
         max_length=20,
-        choices=ORDER_STATUS,
+        choices=APPOINTMENT_STATUS,
         default="recorded"
     )
     phone = PhoneNumberField(
@@ -208,14 +232,91 @@ class Order(models.Model):
         verbose_name="Согласие ОПД",
         default=False
     )
-
+    ####
+    date = models.DateField(
+        verbose_name="Дата записи",
+        null=True,
+        blank=True,
+    )
+    time = models.CharField(
+        verbose_name="Время записи",
+        max_length=20,
+        choices=APPOINTMENT_TIME,
+        null=True,
+        blank=True,
+    )
+    client = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Клиент")
+    master = models.ForeignKey(
+        Master,
+        on_delete=models.CASCADE,
+        related_name="appointments",
+        verbose_name="Мастер",
+        null=True,
+        blank=True,
+    )
+    salon = models.ForeignKey(
+        Salon,
+        related_name="salon_appointments",
+        verbose_name="Салон",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="service_appointments",
+        verbose_name="Услуга",
+        null=True,
+        blank=True,
+    )
+    ####
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
+    # def __str__(self):
+    #     return f"Пользователь [{self.phone}]"
     def __str__(self):
-        return f"Пользователь [{self.phone}]"
+        # if self.client.username:
+        return f"{self.client} [{self.phone}]"
+        # return f"Клиент [{self.phone}]"
 
+    def get_client_name(self):
+        """Получить имя клиента из связанного Client или из поля client_name"""
+        if self.client and hasattr(self.client, 'username') and self.client:
+            return self.client
+        return self.client
+
+    def get_client_phone(self):
+        """Получить телефон клиента из связанного Client или из поля phone"""
+        if self.client:
+            return self.client.phone
+        return self.phone
+
+    def save(self, *args, **kwargs):
+        """Автоматически связываем с клиентом по телефону при сохранении и проверяем дублирование"""
+        # Проверяем дублирование только для новых записей с полными данными
+        if not self.pk and self.date and self.time and self.master and self.salon:
+            existing = Order.objects.filter(
+                date=self.date,
+                time=self.time,
+                master=self.master,
+                salon=self.salon,
+                status__in=['recorded', 'completed']
+            ).exists()
+            
+            if existing:
+                raise ValueError('Мастер уже занят в это время')
+        
+        # Автоматически связываем с клиентом по телефону
+        if self.phone and not self.client:
+            try:
+                self.client = UserProfile.objects.get(phone=self.phone)
+            except UserProfile.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
 
 class OrderService(models.Model):
     ORDER_TIME = (
@@ -275,6 +376,12 @@ class Feedback(models.Model):
     client = models.CharField(
         verbose_name="Кто оставил отзыв",
         max_length=30,
+        blank=True,
+        null=True
+    )
+    contact_tel = PhoneNumberField(
+        verbose_name="Телефон",
+        region="RU",
         blank=True,
         null=True
     )

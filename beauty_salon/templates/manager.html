@@ -130,15 +130,15 @@
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
 						{% if user.is_authenticated %}
-							<div class="accaunt__settings fic">
+							<div class="accaunt__settings fic" style="width: 50px; height: 50px;">
 								{% if user.avatar %}
-								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+								{% endif %}
 								<span class="accaunt__ava_name">
 									<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
 								</span>
-								{% endif %}
 							</div>
 						{% endif %}
 					</div>
@@ -156,13 +156,15 @@
 				<div class="row">
 					<div class="col-md-2 dec">
 						<div class="accaunt__left">
-							<div class="accaunt__ava fic">
-								{% if username.avatar %}
-									<img src="{{ username.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+							<div class="accaunt__ava fic" style="width: 50px; height: 50px;">
+								{% if user.avatar %}
+									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 								{% else %}
-									<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
+									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 								{% endif %}
-								<span class="accaunt__ava_name" >{{ user.username }}</span>
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
+								</span>
 							</div>
 							<div class="accaunt__settings fic">
 								{% comment %} <a href="#" class="accaunt__settings_intro">Изменить профиль</a> {% endcomment %}

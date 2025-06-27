@@ -158,14 +158,13 @@
 					<div class="col-md-2">
 						<div class="accaunt__left">
 							{% comment %} {% if user.is_authenticated %} {% endcomment %}
-
-								<div class="accaunt__ava fic">
-									{% if username.avatar %}
-										<img src="{{ username.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								<div class="accaunt__ava fic" style="width: 50px; height: 50px;">
+									{% if user.avatar %}
+										<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 									{% else %}
 										<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
 									{% endif %}
-									<span class="accaunt__ava_name" >{{ user.username }}</span>
+									<span class="accaunt__ava_name">{{ user.username }}</span>
 								</div>
 							{% comment %} {% else %}
 								<div class="accaunt__ava fic">

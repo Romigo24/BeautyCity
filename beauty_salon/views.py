@@ -274,7 +274,7 @@ def view_manager(request):
 
     last_day_prev_month = first_day_current_month - timedelta(seconds=1)
     first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-
+    
     data_last_month = Order.objects.select_related(
         "client", "master", "salon", "service").filter(
             status__in=["recorded", "completed"],

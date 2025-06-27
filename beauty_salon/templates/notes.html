@@ -37,7 +37,7 @@
 								<div class="accaunt__left">
 							<div class="accaunt__ava fic">
 								<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
-								<span class="accaunt__ava_name">Алиса И.</span>
+								<span class="accaunt__ava_name">Пришелец</span>
 							</div>
 							<div class="accaunt__settings fic">
 								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
@@ -129,11 +129,10 @@
 					<div class="col-3 col-md-2 col-lg-3">
 						{% comment %} {% if user.is_authenticated %} {% endcomment %}
 							<div class="header__block">
-							<a href="{% url 'beauty_salon:call_me' %}" class="menu__item_link">
-								<button class="header__block_btn">
-									Перезвоните мне
-								</button>
-							</a>
+								{% if is_manager %}
+								{% else %}
+							<a href="{% url 'beauty_salon:call_me' %}" class="menu__item_link"><button class="header__block_btn">Перезвоните мне</button></a>
+							{% endif %}
 							{% comment %} <div class="header__block_auth">
 								{% if user.avatar %}
 								<img src="{{ user.avatar.url }}" alt="account" class="header__account_img">
@@ -159,6 +158,7 @@
 					<div class="col-md-2">
 						<div class="accaunt__left">
 							{% comment %} {% if user.is_authenticated %} {% endcomment %}
+
 								<div class="accaunt__ava fic">
 									{% if username.avatar %}
 										<img src="{{ username.avatar.url }}" alt="avatar" class="accaunt__ava_img">
@@ -173,9 +173,16 @@
 									<span class="accaunt__ava_name">Пришелец</span>
 								</div>
 							{% endif %} {% endcomment %}
-							<div class="accaunt__settings fic">
-								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
-								<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+							<div class="accaunt__settings fic" style="gap: 8px;">
+								{% if is_manager %}
+									<a href="{% url 'beauty_salon:manager' %}" class="accaunt__settings_out">Панель менеджера</a>
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% else %}
+									{% comment %} <a href="#" class="accaunt__settings_intro">Изменить профиль</a> {% endcomment %}
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% endif %}
+								{% comment %} <a href="#" class="accaunt__settings_intro">Изменить профиль</a>
+								<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a> {% endcomment %}
 							</div>
 							
 							<nav>
@@ -402,10 +409,10 @@
 							</div>
 							<div class="col-md-3 col-lg-2">
 								<div class="footer__social fic">
-									<a href=""><img src="img/waGray.svg" alt="wa" class="contacts__social_icon"></a>
-									<a href=""><img src="img/vkGray.svg" alt="vk" class="contacts__social_icon"></a>
-									<a href=""><img src="img/tgGray.svg" alt="tg" class="contacts__social_icon"></a>
-									<a href=""><img src="img/instaGray.svg" alt="insta" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/waGray.svg' %}" alt="wa" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/vkGray.svg' %}" alt="vk" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/tgGray.svg' %}" alt="tg" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/instaGray.svg' %}" alt="insta" class="contacts__social_icon"></a>
 								</div>
 							</div>
 						</div>

@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 
+from beauty_salon.forms import LoginForm, RegisterUser
 from beauty_salon.models import (Feedback, Master, Order, Salon, Service,
                                  UserProfile)
 from beauty_salon.utils import validate_phone
@@ -9,8 +10,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-
-from .forms import LoginForm, RegisterUser
 
 
 def view_index(request):
@@ -53,20 +52,14 @@ def view_call_me(request):
             errors["contact_tel"] = ["Введен некорректный номер телефона."]
         if errors:
             return render(request, "call_me.html", {"errors": errors})
-        try:
-            Order.objects.create(
-                status="call",
-                phone=contact_tel,
-                personal_data_consent=personal_data_consent,
-                comment="Перезвонить"
-            )
-            messages.success(request, "Спасибо, мы вам перезвоним в течение часа.")
-            return redirect("beauty_salon:index")
 
-        except ValidationError as e:
-            errors = e.message_dict if hasattr(e, "message_dict") else {"error": e.messages}
-            return render(request, "call_me.html", {"errors": errors})
-
+        Order.objects.create(
+            status="call",
+            phone=contact_tel,
+            personal_data_consent=personal_data_consent,
+            comment="Перезвонить"
+        )
+        return redirect("beauty_salon:index")
     return render(request, "call_me.html")
 
 
@@ -179,48 +172,52 @@ def view_service_finally(request):
 def view_feedback(request):
     errors = {}
     data = {}
+    masters = Master.objects.all()
+
     if request.method == "POST":
         contact_name = request.POST.get("fname")
         contact_tel = request.POST.get("tel")
         visit_date = request.POST.get("dateVis")
         text = request.POST.get("popupTextarea")
+        master_id = request.POST.get("master_id")
+
         data = {
             "client": contact_name,
             "contact_tel": contact_tel,
             "create_at": visit_date,
             "comment": text,
+            "master_id": master_id,
         }
+        try:
+            master = Master.objects.get(id=master_id)
+        except (Master.DoesNotExist, ValueError, TypeError):
+            master = None
+            errors["master"] = ["Выберите мастера."]
+
         if not validate_phone(contact_tel):
             errors["contact_tel"] = ["Введен некорректный номер телефона."]
         if errors:
-            return render(request, "feedback.html", {"errors": errors, "data": data})
+            return render(request, "feedback.html", {"errors": errors, "data": data, "masters": masters})
 
         try:
             Feedback.objects.create(
+                master=master,
                 client=contact_name,
                 contact_tel=contact_tel,
                 comment=text,
                 create_at=visit_date,
             )
-            return render(request, "index.html", {"success": True})
+            return redirect("beauty_salon:notes")
         except ValidationError as e:
             errors = e.message_dict if hasattr(e, "message_dict") else {"error": e.messages}
-            return render(request, "feedback.html", {"errors": errors, "data": data})
+            return render(request, "feedback.html", {"errors": errors, "data": data, "masters": masters})
 
-    return render(request, "feedback.html")
+    return render(request, "feedback.html", {"masters": masters, "data": data})
 
 
 @login_required(login_url="beauty_salon:login")
 def view_notes(request):
-    if not request.user.is_authenticated:
-        return render(
-            request,
-            "notes.html",
-            {"upcoming_appointments": [], "past_appointments": []}
-        )
-
     today = date.today()
-
     upcoming_appointments = Order.objects.filter(
         client=request.user,
         date__gte=today,
@@ -234,13 +231,10 @@ def view_notes(request):
     ).order_by("-date", "-time")
 
     return render(request, "notes.html", {
+        "is_manager": is_manager(request.user),
         "upcoming_appointments": upcoming_appointments,
         "past_appointments": past_appointments,
     })
-
-
-def view_popup(request):
-    return render(request, "popup.html")
 
 
 def view_register(request):
@@ -272,7 +266,7 @@ def is_manager(user):
     return user.is_staff
 
 
-@user_passes_test(is_manager, login_url='beauty_salon:login')
+@user_passes_test(is_manager, login_url="beauty_salon:login")
 def view_manager(request):
     now = timezone.now()
     current_year = timezone.now().year
@@ -283,14 +277,14 @@ def view_manager(request):
 
     data_last_month = Order.objects.select_related(
         "client", "master", "salon", "service").filter(
-            status__in=['recorded', 'completed'],
+            status__in=["recorded", "completed"],
             date__gte=first_day_prev_month,
             date__lte=last_day_prev_month,
             date__year=current_year
     )
 
     visits_this_year = Order.objects.filter(
-        status__in=['recorded', 'completed'],
+        status__in=["recorded", "completed"],
         date__year=current_year
     ).count()
 
@@ -302,10 +296,10 @@ def view_manager(request):
         request,
         "manager.html",
         {
-            'total_payment_last_month': total_payment_last_month,
-            'visits_last_month': visits_last_month,
-            'percent_visits': percent_visits,
-            'visits_this_year': visits_this_year,
+            "total_payment_last_month": total_payment_last_month,
+            "visits_last_month": visits_last_month,
+            "percent_visits": percent_visits,
+            "visits_this_year": visits_this_year,
 
         }
     )

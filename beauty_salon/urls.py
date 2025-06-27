@@ -2,7 +2,7 @@ from beauty_salon.api import (api_dates, api_masters, api_salons, api_services,
                               api_timeslots)
 from beauty_salon.views import (view_call_me, view_feedback, view_index,
                                 view_login, view_manager, view_notes,
-                                view_popup, view_register, view_service,
+                                view_register, view_service,
                                 view_service_finally)
 from django.contrib.auth.views import LogoutView
 from django.urls import path
@@ -14,7 +14,6 @@ urlpatterns = [
     path("service/", view_service),
     path("service-finally/", view_service_finally, name="service_finally"),
     path("notes/", view_notes, name="notes"),
-    path("popup/", view_popup, name="popup"),
 
     path("register/", view_register, name="register"),
     path("login/", view_login, name="login"),

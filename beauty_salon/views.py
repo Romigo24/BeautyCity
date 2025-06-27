@@ -1,27 +1,31 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .api import api_salons, api_masters, api_services, api_timeslots
 from .models import Salon, Master, Service, Appointment, Client, Feedback
 from .forms import LoginForm, RegisterUser
+from .utils import validate_phone
 from datetime import datetime
+from django.utils import timezone
+from datetime import timedelta
 
 
 def index(request):
     if request.method == "POST":
-        contact_name = request.POST.get('fname')
-        contact_tel = request.POST.get('tel')
-        question = request.POST.get('contactsTextarea')
-        personal_data_consent = bool(request.POST.get('checkbox'))
+        contact_name = request.POST.get("fname")
+        contact_tel = request.POST.get("tel")
+        question = request.POST.get("contactsTextarea")
+        personal_data_consent = bool(request.POST.get("checkbox"))
 
         Appointment.objects.create(
             status="call",
             phone=contact_tel,
             client_name=contact_name,
             personal_data_consent=personal_data_consent,
-            comment=f"Вопрос: {question}"
+            comment=f"Вопрос: {question}" if question else "Консультация"
         )
+        messages.success(request, 'Спасибо за обращение! Мы свяжемся с вами в ближайшее время.')
 
     salons = Salon.objects.order_by("name")
     services = Service.objects.all()
@@ -157,6 +161,7 @@ def notes(request):
     return render(request, 'notes.html', {
         'upcoming_appointments': upcoming_appointments,
         'past_appointments': past_appointments,
+        'is_manager': request.user.is_staff,
     })
 
 
@@ -165,9 +170,15 @@ def popup(request):
 
 
 def view_call_me(request):
+    errors = {}
     if request.method == "POST":
         contact_tel = request.POST.get('tel')
         personal_data_consent = bool(request.POST.get('checkbox'))
+
+        if not validate_phone(contact_tel):
+            errors["contact_tel"] = ["Введен некорректный номер телефона."]
+        if errors:
+            return render(request, "call_me.html", {"errors": errors})
 
         Appointment.objects.create(
             status="call",
@@ -176,7 +187,7 @@ def view_call_me(request):
             comment="Перезвонить"
         )
         messages.success(request, 'Спасибо, мы вам перезвоним в течение часа.')
-        return redirect("index")
+        return redirect("beauty_salon:index")
 
     return render(request, "call_me.html")
 
@@ -187,7 +198,7 @@ def view_register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("index")
+            return redirect("beauty_salon:index")
     else:
         form = RegisterUser()
     return render(request, "register.html", {"form": form})
@@ -202,5 +213,92 @@ def view_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("index")
+                return redirect("beauty_salon:index")
     return render(request, "login.html", {"form": form})
+
+
+@login_required(login_url="beauty_salon:login")
+def view_feedback(request):
+    errors = {}
+    data = {}
+    masters = Master.objects.all()
+
+    if request.method == "POST":
+        contact_name = request.POST.get("fname")
+        contact_tel = request.POST.get("tel")
+        visit_date = request.POST.get("dateVis")
+        text = request.POST.get("popupTextarea")
+        master_id = request.POST.get("master_id")
+
+        data = {
+            "client": contact_name,
+            "contact_tel": contact_tel,
+            "create_at": visit_date,
+            "comment": text,
+            "master_id": master_id,
+        }
+        try:
+            master = Master.objects.get(id=master_id)
+        except (Master.DoesNotExist, ValueError, TypeError):
+            master = None
+            errors["master"] = ["Выберите мастера."]
+
+        if not validate_phone(contact_tel):
+            errors["contact_tel"] = ["Введен некорректный номер телефона."]
+        if errors:
+            return render(request, "feedback.html", {"errors": errors, "data": data, "masters": masters})
+
+        Feedback.objects.create(
+            client=contact_name,
+            contact_tel=contact_tel,
+            comment=text,
+            create_at=visit_date,
+            master=master
+        )
+        messages.success(request, "Спасибо за отзыв!")
+        return redirect("beauty_salon:index")
+
+    return render(request, "feedback.html", {"masters": masters})
+
+
+def is_manager(user):
+    return user.is_authenticated and user.is_staff
+
+
+@login_required(login_url="beauty_salon:login")
+@user_passes_test(is_manager, login_url="beauty_salon:login")
+def view_manager(request):
+    now = timezone.now()
+    current_year = timezone.now().year
+    first_day_current_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    last_day_prev_month = first_day_current_month - timedelta(seconds=1)
+    first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    data_last_month = Appointment.objects.select_related(
+        "client", "master", "salon", "service").filter(
+            status__in=["recorded", "completed"],
+            date__gte=first_day_prev_month,
+            date__lte=last_day_prev_month,
+            date__year=current_year
+    )
+
+    visits_this_year = Appointment.objects.filter(
+        status__in=["recorded", "completed"],
+        date__year=current_year
+    ).count()
+
+    total_payment_last_month = sum(order.service.price for order in data_last_month if order.service)
+    visits_last_month = data_last_month.count()
+    percent_visits = (visits_last_month / visits_this_year) * 100 if visits_this_year else 0
+
+    return render(
+        request,
+        "manager.html",
+        {
+            "total_payment_last_month": total_payment_last_month,
+            "visits_last_month": visits_last_month,
+            "percent_visits": percent_visits,
+            "visits_this_year": visits_this_year,
+        }
+    )

@@ -298,9 +298,23 @@ class Appointment(models.Model):
 
 
 class Feedback(models.Model):
+    master = models.ForeignKey(
+        Master,
+        on_delete=models.CASCADE,
+        related_name='feedbacks',
+        verbose_name="Мастер",
+        null=True,
+        blank=True,
+    )
     client = models.CharField(
         verbose_name="Кто оставил отзыв",
         max_length=30,
+        blank=True,
+        null=True
+    )
+    contact_tel = PhoneNumberField(
+        verbose_name="Телефон",
+        region="RU",
         blank=True,
         null=True
     )

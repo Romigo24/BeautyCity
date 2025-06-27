@@ -141,7 +141,23 @@ def service_finally(request):
 
 
 def notes(request):
-    return render(request, 'notes.html')
+    if not request.user.is_authenticated:
+        return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
+
+    try:
+        client = Client.objects.get(user=request.user)
+    except Client.DoesNotExist:
+        return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
+
+    from datetime import date
+    today = date.today()
+    upcoming_appointments = Appointment.objects.filter(client=client, date__gte=today, status__in=['recorded']).order_by('date', 'time')
+    past_appointments = Appointment.objects.filter(client=client, date__lt=today, status__in=['completed', 'canceled']).order_by('-date', '-time')
+
+    return render(request, 'notes.html', {
+        'upcoming_appointments': upcoming_appointments,
+        'past_appointments': past_appointments,
+    })
 
 
 def popup(request):

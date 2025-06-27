@@ -10,6 +10,7 @@ class UserProfile(AbstractUser):
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
+        unique=True,
     )
     avatar = models.ImageField(
         upload_to="static/img/avatars/",
@@ -318,6 +319,7 @@ class Order(models.Model):
         
         super().save(*args, **kwargs)
 
+
 class OrderService(models.Model):
     ORDER_TIME = (
         ("10:00", "10:00"),
@@ -373,6 +375,13 @@ class OrderService(models.Model):
 
 
 class Feedback(models.Model):
+    master = models.ForeignKey(
+        Master,
+        on_delete=models.CASCADE,
+        related_name='feedbacks',
+        verbose_name="Мастер",
+        null=True,
+    )
     client = models.CharField(
         verbose_name="Кто оставил отзыв",
         max_length=30,

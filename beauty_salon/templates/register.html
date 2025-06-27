@@ -30,6 +30,15 @@
                         {% endif %}
                     </p>
                 {% endfor %}
+                <div class="contacts__form_checkboxBlock fic">
+                    <input type="checkbox" name="checkbox" class="contacts__form_checkbox" checked required>
+                    <span class="contacts__form_checkboxBlock__intro">
+                        Я согласен(а) с политикой 
+                        <a href="{% static 'consent_form.pdf' %}" target="_blank" rel="noopener noreferrer">
+                            конфиденциальности
+                        </a>
+                    </span>
+                </div>
                 <button type="submit" class="register-btn">Зарегистрироваться</button>
             </form>
             <p class="register-login-link">

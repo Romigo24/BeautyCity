@@ -1,0 +1,199 @@
+[
+  {
+    "model": "beauty_salon.salon",
+    "pk": 1,
+    "fields": {
+      "name": "BeautyCity на Мира",
+      "address": "просп. Мира, 11",
+      "contact_phone": "+7 900 111-11-11"
+    }
+  },
+  {
+    "model": "beauty_salon.salon",
+    "pk": 2,
+    "fields": {
+      "name": "BeautyCity Ленина",
+      "address": "ул. Ленина, д. 211",
+      "contact_phone": "+7 900 111-11-11"
+    }
+  },
+  {
+    "model": "beauty_salon.salon",
+    "pk": 3,
+    "fields": {
+      "name": "BeautyCity Лубянка",
+      "address": "Лубянский пр., 7, стр. 1",
+      "contact_phone": "+7 900 111-11-11"
+    }
+  },
+  {
+    "model": "beauty_salon.salon",
+    "pk": 4,
+    "fields": {
+      "name": "BeautyCity VIP",
+      "address": "Лубянский пр., 19, стр. 1",
+      "contact_phone": "+7 900 000-00-00"
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 1,
+    "fields": { 
+      "name": "Анна", 
+      "specialty": "Парикмахер",
+      "experience_at": "2022-02-22"
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 2,
+    "fields": { 
+      "name": "Ольга", 
+      "specialty": "Парикмахер",
+      "experience_at": "2021-10-26"
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 3,
+    "fields": { 
+      "name": "Мария", 
+      "specialty": "Мастер маникюра",
+      "experience_at": "2010-10-26" 
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 4,
+    "fields": { 
+      "name": "Екатерина", 
+      "specialty": "Мастер маникюра",
+      "experience_at": "2022-05-05" 
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 5,
+    "fields": { 
+      "name": "Ирина", 
+      "specialty": "Детский парикмахер",
+      "experience_at": "2000-10-26" 
+    }
+  },
+  {
+    "model": "beauty_salon.master",
+    "pk": 6,
+    "fields": { 
+      "name": "Светлана", 
+      "specialty": "Мастер педикюра",
+      "experience_at": "2015-12-26" 
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 1,
+    "fields": { 
+      "name": "Дневной макияж", 
+      "price": "1400.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 2,
+    "fields": { 
+      "name": "Маникюр. Классический. Гель", 
+      "price": "2000.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 3,
+    "fields": { 
+      "name": "Укладка волос", 
+      "price": "1500.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 4,
+    "fields": { 
+      "name": "Укладка волос", 
+      "price": "3000.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 5,
+    "fields": { 
+      "name": "Педикюр", 
+      "price": "1800.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 6,
+    "fields": { 
+      "name": "Окрашивание волос", 
+      "price": "5000.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 7,
+    "fields": { 
+      "name": "Ночной макияж", 
+      "price": "2700.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 8,
+    "fields": { 
+      "name": "Маникюр для свадьбы", 
+      "price": "10000.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 9,
+    "fields": { 
+      "name": "Праздничная укладка", 
+      "price": "3100.00"
+    }
+  },
+  {
+    "model": "beauty_salon.service",
+    "pk": 10,
+    "fields": { 
+      "name": "Свадебная укладка", 
+      "price": "5200.00"
+    }
+  },
+  {
+    "model": "beauty_salon.feedback",
+    "pk": 1,
+    "fields": { 
+      "client": "Леночка",
+      "comment": "Отличное место для красоты, очень доброжелательный и отзывчивый персонал, девочки заботливые, аккуратные и большие профессионалы. Посещаю салон с самого начала, но он не теряет своей привлекательности, как в обслуживании.", 
+      "create_at": "2022-05-06"
+    }
+  },
+  {
+    "model": "beauty_salon.feedback",
+    "pk": 2,
+    "fields": { 
+      "client": "Анна",
+      "comment": "Очень довольна качеством услуг! Мастера настоящие профессионалы, атмосфера приятная, цены адекватные. Обязательно буду рекомендовать друзьям.", 
+      "create_at": "2022-06-15"
+    }
+  },
+  {
+    "model": "beauty_salon.feedback",
+    "pk": 3,
+    "fields": { 
+      "client": "Мария",
+      "comment": "Делала процедуру микротоки у мастера Светланы. Светлана внимательная, приветливая, ненавязчивая. Рекомендую и мастера, и процедуру.", 
+      "create_at": "2022-07-20"
+    }
+  }
+] 

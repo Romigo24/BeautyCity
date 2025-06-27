@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Beauty City</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" integrity="sha512-yHknP1/AwR+yx26cB1y0cjvQUMvEa2PFzt1c9LlS4pRQ5NOTZFWbhBig+X9G9eYW/8m0/4OXNx8pxJ6z57x0dw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" integrity="sha512-17EgCFERpgZKcm0j0fEq1YCJuyAWdz9KUtv1EjVuaOz8pDnh/0nZxmU6BBXwaaxqoi9PQXnRWqlcDB027hgv9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="{% static 'css/jquery.arcticmodal-0.3.css' %}">
+	<link rel="stylesheet" href="{% static 'css/simple.css' %}">
+	<link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 80vh; background-color:rgb(239, 243, 229);">
+    <div class="container" style="width: 400px;">
+        <div class="register-block" >
+            <h1 class="register-title">{{ title|default:"Регистрация" }}</h1>
+            <form method="post" class="register-form" >
+                {% csrf_token %}
+                {% for field in form %}
+                    <p class="form-group">
+                        <label for="{{ field.id_for_label }}" class="form-label" >{{ field.label }}:{{ field }}</label>
+                            
+                        {% if field.errors %}
+                            <div class="form-error" style="color: red; font-size: 0.9em; margin-top: 4px; ">{{ field.errors }}</div>
+                        {% endif %}
+                    </p>
+                {% endfor %}
+                <button type="submit" class="register-btn">Зарегистрироваться</button>
+            </form>
+            <p class="register-login-link">
+                Уже есть аккаунт? <a href="{% url 'login' %}"><button type="submit">Войти</button></a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

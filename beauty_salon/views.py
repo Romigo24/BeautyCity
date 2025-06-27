@@ -1,13 +1,14 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from beauty_salon.models import (Feedback, Master, Order, Salon, Service,
                                  UserProfile)
 from beauty_salon.utils import validate_phone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .forms import LoginForm, RegisterUser
 
@@ -73,8 +74,8 @@ def view_service(request):
     salons = Salon.objects.order_by("name")
     return render(
         request, 
-        "service.html", {"salons": salons,}
-        )
+        "service.html", {"salons": salons}
+    )
 
 
 def view_service_finally(request):
@@ -265,3 +266,46 @@ def view_login(request):
                 login(request, user)
                 return redirect("beauty_salon:index")
     return render(request, "login.html", {"form": form})
+
+
+def is_manager(user):
+    return user.is_staff
+
+
+@user_passes_test(is_manager, login_url='beauty_salon:login')
+def view_manager(request):
+    now = timezone.now()
+    current_year = timezone.now().year
+    first_day_current_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    last_day_prev_month = first_day_current_month - timedelta(seconds=1)
+    first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    data_last_month = Order.objects.select_related(
+        "client", "master", "salon", "service").filter(
+            status__in=['recorded', 'completed'],
+            date__gte=first_day_prev_month,
+            date__lte=last_day_prev_month,
+            date__year=current_year
+    )
+
+    visits_this_year = Order.objects.filter(
+        status__in=['recorded', 'completed'],
+        date__year=current_year
+    ).count()
+
+    total_payment_last_month = sum(order.service.price for order in data_last_month if order.service)
+    visits_last_month = data_last_month.count()
+    percent_visits = (visits_last_month / visits_this_year) * 100 if visits_this_year else 0
+
+    return render(
+        request,
+        "manager.html",
+        {
+            'total_payment_last_month': total_payment_last_month,
+            'visits_last_month': visits_last_month,
+            'percent_visits': percent_visits,
+            'visits_this_year': visits_this_year,
+
+        }
+    )

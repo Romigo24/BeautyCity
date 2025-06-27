@@ -1,4 +1,297 @@
 $(document).ready(function() {
+	// Инициализация параметров из URL
+	function getUrlParameter(name) {
+		const urlParams = new URLSearchParams(window.location.search);
+		return urlParams.get(name);
+	}
+
+	// Загружаем параметры из URL при инициализации
+	const urlSalon = getUrlParameter('salon');
+	const urlMaster = getUrlParameter('master');
+	const urlService = getUrlParameter('service');
+	const urlDate = getUrlParameter('date');
+	const urlTime = getUrlParameter('time');
+
+	let selected = {
+		salon: null,
+		master: null,
+		service: null,
+		date: null,
+		time: null
+	};
+
+	let availableDates = [];
+
+	if (urlSalon) selected.salon = urlSalon;
+	if (urlMaster) selected.master = urlMaster;
+	if (urlService) selected.service = urlService;
+	if (urlDate) selected.date = urlDate;
+	if (urlTime) selected.time = urlTime;
+
+	function updateSalons(reset = false) {
+		$.get('/api/salons/', {
+			master: selected.master,
+			service: selected.service,
+			date: selected.date
+		}, function(data) {
+			let html = '';
+			let ids = [];
+			data.forEach(function(salon) {
+				html += `<div class="accordion__block fic salon-item" data-id="${salon.id}">
+					<div class="accordion__block_intro">${salon.name}</div>
+					<div class="accordion__block_address">${salon.address}</div>
+				</div>`;
+				ids.push(String(salon.id));
+			});
+			$('.salons-panel').html(html);
+			// Сбрасываем выбор салона только если reset=true и салон недоступен
+			if (reset && selected.salon && !ids.includes(String(selected.salon))) {
+				selected.salon = null;
+				$('.service__salons button.accordion').text('(Выберите салон)');
+			}
+			// Восстанавливаем выделение, если выбранный салон доступен
+			if (selected.salon && !reset) {
+				$(`.salon-item[data-id='${selected.salon}']`).addClass('selected');
+			}
+		});
+	}
+
+	function updateMasters(reset = false) {
+		$.get('/api/masters/', {
+			salon: selected.salon,
+			service: selected.service,
+			date: selected.date
+		}, function(data) {
+			let html = '';
+			let ids = [];
+			data.forEach(function(master) {
+				html += `<div class="accordion__block fic master-item" data-id="${master.id}">
+					<div class="accordion__block_master">${master.name}</div>
+				</div>`;
+				ids.push(String(master.id));
+			});
+			$('.masters-panel').html(html);
+			// Сбрасываем выбор мастера только если reset=true и мастер недоступен
+			if (reset && selected.master && !ids.includes(String(selected.master))) {
+				selected.master = null;
+				$('.service__masters button.accordion').text('(Выберите мастера)');
+			}
+			// Восстанавливаем выделение, если выбранный мастер доступен
+			if (selected.master && !reset) {
+				$(`.master-item[data-id='${selected.master}']`).addClass('selected');
+			}
+		});
+	}
+
+	function updateServices(reset = false) {
+		$.get('/api/services/', {
+			salon: selected.salon,
+			master: selected.master,
+			date: selected.date
+		}, function(data) {
+			let html = '';
+			let ids = [];
+			data.forEach(function(service) {
+				html += `<div class="accordion__block_item fic service-item" data-id="${service.id}">
+					<div class="accordion__block_item_intro">${service.name}</div>
+					<div class="accordion__block_item_address">${service.price ? service.price + ' ₽' : ''}</div>
+				</div>`;
+				ids.push(String(service.id));
+			});
+			$('.services-panel').html(html);
+			// Сбрасываем выбор услуги только если reset=true и услуга недоступна
+			if (reset && selected.service && !ids.includes(String(selected.service))) {
+				selected.service = null;
+				$('.service__services button.accordion').text('(Выберите услугу)');
+			}
+			// Восстанавливаем выделение, если выбранная услуга доступна
+			if (selected.service && !reset) {
+				$(`.service-item[data-id='${selected.service}']`).addClass('selected');
+			}
+		});
+	}
+
+	function updateTimeslots() {
+		if (!selected.salon || !selected.master || !selected.service || !selected.date) {
+			$('.timeslots-panel').html('<div>Выберите все параметры для отображения времени</div>');
+			return;
+		}
+		$.get('/api/timeslots/', {
+			salon: selected.salon,
+			master: selected.master,
+			service: selected.service,
+			date: selected.date
+		}, function(data) {
+			let html = '';
+			if (data.free_slots.length === 0) {
+				html = '<div>Нет свободных слотов</div>';
+			} else {
+				data.free_slots.forEach(function(slot) {
+					html += `<button data-time="${slot}" class="time__elems_btn">${slot}</button>`;
+				});
+			}
+			$('.timeslots-panel').html(html);
+			// Восстанавливаем выбор времени, если оно было выбрано и доступно
+			if (selected.time && data.free_slots.includes(selected.time)) {
+				$(`.time__elems_btn[data-time='${selected.time}']`).addClass('active');
+			}
+		});
+	}
+
+	function updateAvailableDates() {
+		$.get('/api/dates/', {
+			salon: selected.salon,
+			master: selected.master
+		}, function(data) {
+			availableDates = data.available_dates || [];
+			if (window.datepickerInstance) {
+				window.datepickerInstance.update({
+					isDateDisabled: function(date) {
+						const d = date.toISOString().slice(0, 10);
+						return !availableDates.includes(d);
+					}
+				});
+				// Проверяем, доступна ли текущая выбранная дата
+				if (selected.date && !availableDates.includes(selected.date)) {
+					selected.date = null;
+					window.datepickerInstance.clear();
+				}
+			}
+		});
+	}
+
+	// Инициализация
+	updateSalons(true);
+	updateMasters(true);
+	updateServices(true);
+	updateAvailableDates();
+	
+	// Если параметры загружены из URL, обновляем соответствующие данные
+	if (urlSalon || urlMaster || urlService || urlDate) {
+		updateTimeslots();
+		updateNextButton();
+		
+		// Визуально выделяем выбранные элементы после загрузки данных
+		setTimeout(function() {
+			if (selected.salon) {
+				$(`.salon-item[data-id='${selected.salon}']`).addClass('selected');
+				var salonName = $(`.salon-item[data-id='${selected.salon}']`).find('.accordion__block_intro').text();
+				$('.service__form_block').each(function() {
+					if ($(this).find('.salon-item').length > 0) {
+						$(this).find('button.accordion').text(salonName);
+					}
+				});
+			}
+			if (selected.master) {
+				$(`.master-item[data-id='${selected.master}']`).addClass('selected');
+				var masterName = $(`.master-item[data-id='${selected.master}']`).find('.accordion__block_master').text();
+				$('.service__form_block').each(function() {
+					if ($(this).find('.master-item').length > 0) {
+						$(this).find('button.accordion').text(masterName);
+					}
+				});
+			}
+			if (selected.service) {
+				$(`.service-item[data-id='${selected.service}']`).addClass('selected');
+				var serviceName = $(`.service-item[data-id='${selected.service}']`).find('.accordion__block_item_intro').text();
+				var servicePrice = $(`.service-item[data-id='${selected.service}']`).find('.accordion__block_item_address').text();
+				$('.service__form_block').each(function() {
+					if ($(this).find('.service-item').length > 0) {
+						$(this).find('button.accordion').text(serviceName + (servicePrice ? ' — ' + servicePrice : ''));
+					}
+				});
+			}
+			if (selected.time) {
+				$(`.time__elems_btn[data-time='${selected.time}']`).addClass('active');
+			}
+		}, 500); // Небольшая задержка для загрузки данных
+	}
+
+	// События выбора
+	$(document).on('click', '.salon-item', function() {
+		selected.salon = $(this).data('id');
+		$('.salon-item').removeClass('selected');
+		$(this).addClass('selected');
+		// Обновляем текст кнопки-аккордеона
+		var name = $(this).find('.accordion__block_intro').text();
+		var btn = $(this).closest('.service__form_block').find('button.accordion');
+		btn.text(name);
+		// Закрываем панель
+		$(this).closest('.panel').removeClass('active');
+		// Обновляем остальные данные, не сбрасывая выбор
+		updateMasters(false);
+		updateServices(false);
+		updateTimeslots();
+		updateAvailableDates();
+		updateNextButton();
+	});
+
+	$(document).on('click', '.master-item', function() {
+		// Сначала фиксируем выбор мастера
+		selected.master = $(this).data('id');
+		// Обновляем текст кнопки-аккордеона
+		var name = $(this).find('.accordion__block_master').text();
+		var btn = $(this).closest('.service__form_block').find('button.accordion');
+		btn.text(name);
+		// Визуально выделяем выбранный элемент
+		$('.master-item').removeClass('selected');
+		$(this).addClass('selected');
+		// Закрываем панель
+		$(this).closest('.panel').removeClass('active');
+		// Обновляем остальные данные, не сбрасывая выбор мастера
+		updateSalons(false);
+		updateServices(false);
+		updateTimeslots();
+		updateAvailableDates();
+		updateNextButton();
+	});
+
+	$(document).on('click', '.service-item', function() {
+		selected.service = $(this).data('id');
+		$('.service-item').removeClass('selected');
+		$(this).addClass('selected');
+		// Обновляем текст кнопки-аккордеона
+		var name = $(this).find('.accordion__block_item_intro').text();
+		var price = $(this).find('.accordion__block_item_address').text();
+		var btn = $(this).closest('.service__form_block').find('button.accordion');
+		btn.text(name + (price ? ' — ' + price : ''));
+		// Закрываем панель
+		$(this).closest('.panel').removeClass('active');
+		// Обновляем остальные данные, не сбрасывая выбор
+		updateMasters(false);
+		updateSalons(false);
+		updateTimeslots();
+		updateNextButton();
+	});
+
+	// Дата
+	window.datepickerInstance = new AirDatepicker('#datepickerHere', {
+		onSelect({date}) {
+			if (date) {
+				selected.date = date.toISOString().slice(0, 10);
+				// Обновляем списки без сброса текущих выборов
+				updateSalons(false);
+				updateMasters(false);
+				updateServices(false);
+				updateTimeslots();
+				updateNextButton();
+			}
+		},
+		isDateDisabled: function(date) {
+			if (availableDates.length === 0) return false;
+			const d = date.toISOString().slice(0, 10);
+			return !availableDates.includes(d);
+		}
+	});
+
+	// Время
+	$(document).on('click', '.time__elems_btn', function() {
+		$('.time__elems_btn').removeClass('active');
+		$(this).addClass('active');
+		selected.time = $(this).data('time');
+		updateNextButton();
+	});
+
 	$('.salonsSlider').slick({
 		arrows: true,
 	  slidesToShow: 4,
@@ -125,8 +418,6 @@ $(document).ready(function() {
 		$('#mobMenu').hide()
 	})
 
-	new AirDatepicker('#datepickerHere')
-
 	var acc = document.getElementsByClassName("accordion");
 	var i;
 
@@ -141,237 +432,6 @@ $(document).ready(function() {
 	    	 panel.addClass('active')
 	  });
 	}
-
-
-	$(document).on('click', '.accordion__block', function(e) {
-		let thisName,thisAddress;
-
-		thisName = $(this).find('> .accordion__block_intro').text()
-		thisAddress = $(this).find('> .accordion__block_address').text()
-		
-		
-		if(thisName === 'BeautyCity Пушкинская') {
-			$('.service__masters > .panel').html(`
-				<div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/all.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Любой мастер</div>
-						  	</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/1.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Елизавета Лапина</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Мастер маникюра</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/2.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Анна Сергеева</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Парикмахер</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/3.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Ева Колесова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/4.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Мария Суворова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Стилист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/5.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Мария Максимова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/pushkinskaya/6.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Анастасия Сергеева</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>	
-			`)
-			// $('.service__masters div[data-masters="Pushkinskaya"]').addClass('vib')
-		}
-		console.log(thisName)
-		if(thisName === 'BeautyCity Ленина') {
-			
-			$('.service__masters > .panel').html(`
-				<div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/all.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Любой мастер</div>
-						  	</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/1.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Дарья Мартынова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Мастер маникюра</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/2.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Амина Абрамова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Парикмахер</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/3.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Милана Романова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/4.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Диана Чернова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Стилист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/5.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Полина Лукьянова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/lenina/6.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Вера Дмитриева</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-			`)
-		}
-
-		if(thisName === 'BeautyCity Красная') {
-			$('.service__masters > .panel').html(`
-				<div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/all.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Любой мастер</div>
-						  	</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/1.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Зоя Матвеева</div>
-						  	</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/2.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Мария Родина</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Мастер маникюра</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/3.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Дарья Попова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Парикмахер</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/4.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Ева Семенова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/5.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Вера Романова</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Стилист</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_elems fic">
-							  	<img src="img/masters/avatar/krasnaya/6.svg" alt="avatar" class="accordion__block_img">
-							  	<div class="accordion__block_master">Валерия Зуева</div>
-						  	</div>
-						  	<div class="accordion__block_prof">Визажист</div>
-						  </div>
-			`)
-			
-		}
-
-		$(this).parent().parent().find('> button.active').addClass('selected').text(thisName + '  ' +thisAddress)
-		setTimeout(() => {
-			$(this).parent().parent().find('> button.active').click()
-		}, 200)
-		
-		// $(this).parent().addClass('hide')
-
-		// console.log($(this).parent().parent().find('.panel').hasClass('selected'))
-		
-		// $(this).parent().parent().find('.panel').addClass('selected')
-	})
-
-
-	$('.accordion__block_item').click(function(e) {
-		let thisName,thisAddress;
-		thisName = $(this).find('> .accordion__block_item_intro').text()
-		thisAddress = $(this).find('> .accordion__block_item_address').text()
-		$(this).parent().parent().parent().parent().find('> button.active').addClass('selected').text(thisName + '  ' +thisAddress)
-		// $(this).parent().parent().parent().parent().find('> button.active').click()
-		// $(this).parent().parent().parent().addClass('hide')
-		setTimeout(() => {
-			$(this).parent().parent().parent().parent().find('> button.active').click()
-		}, 200)
-	})
-
-
-
-	// 	console.log($('.service__masters > .panel').attr('data-masters'))
-	// if($('.service__salons .accordion.selected').text() === "BeautyCity Пушкинская  ул. Пушкинская, д. 78А") {
-	// }
-
-
-	$(document).on('click', '.service__masters .accordion__block', function(e) {
-		let clone = $(this).clone()
-		console.log(clone)
-		$(this).parent().parent().find('> button.active').html(clone)
-	})
-
-	// $('.accordion__block_item').click(function(e) {
-	// 	const thisName = $(this).find('.accordion__block_item_intro').text()
-	// 	const thisAddress = $(this).find('.accordion__block_item_address').text()
-	// 	console.log($(this).parent().parent().parent().parent())
-	// 	$(this).parent().parent().parent().parent().find('button.active').addClass('selected').text(thisName + '  ' +thisAddress)
-	// })
-
-
-
-	// $('.accordion__block_item').click(function(e) {
-	// 	const thisChildName = $(this).text()
-	// 	console.log(thisChildName)
-	// 	console.log($(this).parent().parent().parent())
-	// 	$(this).parent().parent().parent().parent().parent().find('button.active').addClass('selected').text(thisChildName)
-
-	// })
-	// $('.accordion.selected').click(function() {
-	// 	$(this).parent().find('.panel').hasClass('selected') ? 
-	// 	 $(this).parent().find('.panel').removeClass('selected')
-	// 		:
-	// 	$(this).parent().find('.panel').addClass('selected')
-	// })
-
 
 	//popup
 	$('.header__block_auth').click(function(e) {
@@ -414,5 +474,34 @@ $(document).ready(function() {
 	})
 	
 
+	function updateNextButton() {
+		if (selected.salon && selected.master && selected.service && selected.date && selected.time) {
+			$('.time__btns_next').prop('disabled', false).addClass('active');
+		} else {
+			$('.time__btns_next').prop('disabled', true).removeClass('active');
+		}
+	}
+
+	$(document).on('click', '.salon-item, .master-item, .service-item, .time__elems_btn', function() {
+		updateNextButton();
+	});
+	$(document).on('change', '#datepickerHere', function() {
+		updateNextButton();
+	});
+
+	// При клике на Далее, если все параметры выбраны, переход на service-finally
+	$(document).on('click', '.time__btns_next', function(e) {
+		if (!$(this).hasClass('active')) {
+			e.preventDefault();
+			return;
+		}
+		const params = $.param(selected);
+		window.location.href = `/service-finally/?${params}`;
+	});
+
+	// После выбора мастера или салона обновляем доступные даты
+	$(document).on('click', '.salon-item, .master-item', function() {
+		updateAvailableDates();
+	});
 
 })

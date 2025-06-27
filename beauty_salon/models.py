@@ -1,19 +1,17 @@
-from datetime import date, datetime, time
-
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
+from django.conf import settings
+from datetime import date
 
 
-class UserProfile(AbstractUser):
+class Client(models.Model):
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
     )
     avatar = models.ImageField(
-        upload_to="static/img/avatars/",
+        upload_to="media/avatars/",
         null=True,
         blank=True,
     )
@@ -21,13 +19,14 @@ class UserProfile(AbstractUser):
         verbose_name="Согласие ОПД",
         default=False
     )
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
     def __str__(self):
-        return f"Пользователь с тел: {self.phone}"
+        return f"Клиент с тел: {self.phone}"
 
 
 class Service(models.Model):
@@ -42,11 +41,6 @@ class Service(models.Model):
         null=True,
         blank=True,
         validators=[MinValueValidator(0)]
-    )
-    image = models.FileField(
-        upload_to="media/service_img/",
-        verbose_name="Картинка",
-        blank=True,
     )
 
     class Meta:
@@ -72,7 +66,21 @@ class Salon(models.Model):
         max_length=50,
         blank=True,
     )
-    image = models.FileField(
+    latitude = models.DecimalField(
+        "Широта",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+    )
+    longitude = models.DecimalField(
+        "Долгота",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+    )
+    image = models.ImageField(
         upload_to="media/salon_img/",
         verbose_name="Картинка",
         blank=True,
@@ -91,7 +99,7 @@ class Master(models.Model):
         max_length=15,
         verbose_name="Мастер",
     )
-    image = models.FileField(
+    image = models.ImageField(
         verbose_name="Картинка",
         upload_to="media/master_img/",
         blank=True,
@@ -105,6 +113,18 @@ class Master(models.Model):
         max_length=35,
         verbose_name="Опыт",
         null=True,
+        blank=True,
+    )
+    services = models.ManyToManyField(
+        'Service',
+        verbose_name="Оказываемые услуги",
+        related_name="masters",
+        blank=True,
+    )
+    salons = models.ManyToManyField(
+        'Salon',
+        verbose_name="Салоны работы",
+        related_name="masters",
         blank=True,
     )
 
@@ -133,63 +153,45 @@ class Master(models.Model):
             return f"{years} лет"
 
 
-class SalonServicePrice(models.Model):
-    salon = models.ForeignKey(
-        Salon,
-        related_name="salons",
-        verbose_name="Салон",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="services",
-        verbose_name="Услуга",
-        null=True,
-        blank=True,
-    )
-    master = models.ForeignKey(
-        Master,
-        on_delete=models.CASCADE,
-        related_name="masters",
-        verbose_name="Мастер",
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = "Услгуга в салоне"
-        verbose_name_plural = "Услгуги в салоне"
-        unique_together = [
-            ["master", "service", "salon"]
-        ]
-
-    def __str__(self):
-        return f"{self.salon.name} - {self.service.name} - {self.master.name}"
-
-
-class Order(models.Model):
+class Appointment(models.Model):
     PAYMENT_TYPE = (
         ("cash", "Наличностью"),
         ("e_pay", "Электронно"),
     )
-    ORDER_STATUS = (
+    APPOINTMENT_STATUS = (
         ("recorded", "Записан"),
         ("completed", "Выполнен"),
         ("canceled", "Отменен"),
         ("call", "Консультация"),
     )
+    APPOINTMENT_TIME = (
+        ("10:00", "10:00"),
+        ("11:00", "11:00"),
+        ("12:00", "12:00"),
+        ("13:00", "13:00"),
+        ("15:00", "15:00"),
+        ("16:00", "16:00"),
+        ("17:00", "17:00"),
+        ("18:00", "18:00"),
+        ("19:00", "19:00"),
+    )
+    
+    # Основная информация о записи
     status = models.CharField(
         verbose_name="Статус записи",
         max_length=20,
-        choices=ORDER_STATUS,
+        choices=APPOINTMENT_STATUS,
         default="recorded"
     )
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
+    )
+    client_name = models.CharField(
+        verbose_name="Имя клиента",
+        max_length=100,
+        blank=True,
+        null=True,
     )
     payment = models.CharField(
         verbose_name='Тип оплаты',
@@ -198,6 +200,18 @@ class Order(models.Model):
         default='cash',
         blank=True,
         null=True,
+    )
+    date = models.DateField(
+        verbose_name="Дата записи",
+        null=True,
+        blank=True,
+    )
+    time = models.CharField(
+        verbose_name="Время записи",
+        max_length=20,
+        choices=APPOINTMENT_TIME,
+        null=True,
+        blank=True,
     )
     comment = models.TextField(
         verbose_name="Комментарий",
@@ -209,118 +223,78 @@ class Order(models.Model):
         verbose_name="Согласие ОПД",
         default=False
     )
-
-    class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказы"
-
-    def __str__(self):
-        return f"Пользователь [{self.phone}]"
-
-
-class OrderService(models.Model):
-    ORDER_TIME = (
-        ("10:00", "10:00"),
-        ("11:00", "11:00"),
-        ("12:00", "12:00"),
-        ("13:00", "13:00"),
-        ("15:00", "15:00"),
-        ("16:00", "16:00"),
-        ("17:00", "17:00"),
-        ("18:00", "18:00"),
-        ("19:00", "19:00"),
-    )
+    
+    # Связи с другими моделями
+    client = models.ForeignKey('Client', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Клиент")
     master = models.ForeignKey(
         Master,
         on_delete=models.CASCADE,
-        related_name="master_services",
+        related_name="appointments",
         verbose_name="Мастер",
+        null=True,
+        blank=True,
     )
     salon = models.ForeignKey(
         Salon,
-        related_name="salon_services",
+        related_name="salon_appointments",
         verbose_name="Салон",
         on_delete=models.CASCADE,
-    )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name="orders",
-        verbose_name="Запись",
+        null=True,
+        blank=True,
     )
     service = models.ForeignKey(
         Service,
         on_delete=models.CASCADE,
-        related_name="service_items",
+        related_name="service_appointments",
         verbose_name="Услуга",
         null=True,
         blank=True,
     )
-    record_time_at = models.CharField(
-        verbose_name="Время записи",
-        max_length=20,
-        choices=ORDER_TIME,
-        null=True,
-        blank=True,
-    )
-    record_date = models.DateField(
-        verbose_name="Дата записи",
-        null=True,
-        blank=True
-    )
-    created_at = models.DateTimeField(
-        verbose_name="Дата создания записи",
-        auto_now_add=True
-    )
 
     class Meta:
-        verbose_name = "элемент записи"
-        verbose_name_plural = "элементы записи"
-        ordering = ['record_date', 'record_time_at']
+        verbose_name = "Запись"
+        verbose_name_plural = "Записи"
 
     def __str__(self):
-        return f"{self.master.name} - {self.service.name if self.service else 'Услуга не указана'} - {self.record_date} {self.record_time_at}"
+        if self.client_name:
+            return f"{self.client_name} [{self.phone}]"
+        return f"Клиент [{self.phone}]"
 
-    def get_datetime(self):
-        """Возвращает полный datetime записи"""
-        if self.record_date and self.record_time_at:
-            time_obj = datetime.strptime(self.record_time_at, "%H:%M").time()
-            return datetime.combine(self.record_date, time_obj)
-        return None
+    def get_client_name(self):
+        """Получить имя клиента из связанного Client или из поля client_name"""
+        if self.client and hasattr(self.client, 'user') and self.client.user:
+            return self.client.user.first_name or self.client_name
+        return self.client_name
 
-    def is_upcoming(self):
-        """Проверяет, является ли запись предстоящей"""
-        if not self.record_date or not self.record_time_at:
-            return False
+    def get_client_phone(self):
+        """Получить телефон клиента из связанного Client или из поля phone"""
+        if self.client:
+            return self.client.phone
+        return self.phone
 
-        try:
-            time_obj = datetime.strptime(self.record_time_at, "%H:%M").time()
-            record_datetime = datetime.combine(self.record_date, time_obj)
-            record_datetime = timezone.make_aware(record_datetime)
-            return record_datetime >= timezone.now()
-        except (ValueError, TypeError):
-            return False
-
-    def is_past(self):
-        """Проверяет, является ли запись прошедшей"""
-        return not self.is_upcoming()
-
-    def get_status_display(self):
-        """Возвращает статус записи (для отображения в шаблоне)"""
-        if self.is_upcoming():
-            return "Предстоящая"
-        return "Прошедшая"
-
-    def get_full_date(self):
-        """Возвращает отформатированную дату и время для отображения"""
-        if self.record_date and self.record_time_at:
-            month_names = {
-                1: "января", 2: "февраля", 3: "марта", 4: "апреля",
-                5: "мая", 6: "июня", 7: "июля", 8: "августа",
-                9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"
-            }
-            return f"{self.record_date.day} {month_names[self.record_date.month]} - {self.record_time_at}"
-        return "Дата не указана"
+    def save(self, *args, **kwargs):
+        """Автоматически связываем с клиентом по телефону при сохранении и проверяем дублирование"""
+        # Проверяем дублирование только для новых записей с полными данными
+        if not self.pk and self.date and self.time and self.master and self.salon:
+            existing = Appointment.objects.filter(
+                date=self.date,
+                time=self.time,
+                master=self.master,
+                salon=self.salon,
+                status__in=['recorded', 'completed']
+            ).exists()
+            
+            if existing:
+                raise ValueError('Мастер уже занят в это время')
+        
+        # Автоматически связываем с клиентом по телефону
+        if self.phone and not self.client:
+            try:
+                self.client = Client.objects.get(phone=self.phone)
+            except Client.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
 
 
 class Feedback(models.Model):
@@ -335,8 +309,7 @@ class Feedback(models.Model):
         max_length=250,)
     create_at = models.DateField(
         verbose_name="Дата создания",
-        blank=True,
-        null=True
+        auto_now_add=True,
     )
 
     class Meta:
@@ -344,4 +317,4 @@ class Feedback(models.Model):
         verbose_name_plural = "Отзывы"
 
     def __str__(self):
-        return f"{self.comment}"
+        return f"Отзыв от {self.client}"

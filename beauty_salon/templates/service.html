@@ -8,10 +8,8 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" integrity="sha512-yHknP1/AwR+yx26cB1y0cjvQUMvEa2PFzt1c9LlS4pRQ5NOTZFWbhBig+X9G9eYW/8m0/4OXNx8pxJ6z57x0dw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" integrity="sha512-17EgCFERpgZKcm0j0fEq1YCJuyAWdz9KUtv1EjVuaOz8pDnh/0nZxmU6BBXwaaxqoi9PQXnRWqlcDB027hgv9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<!-- 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css.map">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css.map"> -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/air-datepicker.css' %}">
 	<script src="{% static 'js/air-datepicker.js' %}"></script>
@@ -88,44 +86,18 @@
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 								<span class="accaunt__ava_name">
-									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+									<a href="{% url 'notes' %}" >{{ user.username }}</a>
 								</span>
 								{% endif %}
 							</div>
 						{% else %}
-
 						<div class="header__block">
-						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
-							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+						<a href="{% url 'call_me' %}"><button class="header__block_btn">Перезвоните мне</button></a>
+							<a href="{% url 'register' %}">Регистрация</a>
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+							<a href="{% url 'login' %}">Войти</a>
+						</div>
 						{% endif %}
-						{% comment %} {% if user.is_authenticated %}
-							<div class="header__block">
-							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">
-								{{ user.username }}
-							</span>
-							</div>
-						{% else %}
-
-						<div class="header__block">
-						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
-						<div>
-							<a href="{% url 'beauty_salon:register' %}">
-								<span class="header__block_auth__intro">
-									Регистрация
-								</span>
-							</a>
-						</div>
-						<div class="header__block_auth">
-							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">
-									Войти
-								{% endif %} {% endcomment %}
-							</span>
-						</div>
-					</div>
 					</div>
 				</div>
 				
@@ -138,118 +110,25 @@
 		<div class="container">
 			<div class="service">
 				<div class="breadCrumbs">
-					<a href="#" class="breadCrumbs__item">На главную</a>
+					<a href="/" class="breadCrumbs__item">На главную</a>
 				</div>
 				<div class="service__block">
 					<h1 class="service__title">Запись на услугу</h1>
 					<button class="service__btn btn">Запись по телефону</button>
 				</div>
-				
 				<form action="#" class="service__form">
-					<!-- <select name="selectSalon" id="" class="service__form_select">
-						<option value="" selected>(Выберите салон)</option>
-						<option value="salon1" >Салон 1</option>
-						<option value="salon2" >Салон 2</option>
-						<option value="salon3" >Салон 3</option>
-					</select> -->
 					<div class="service__form_block service__salons">
 						<button class="accordion">(Выберите салон)</button>
-						<div class="panel">
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Пушкинская</div>
-						  	<div class="accordion__block_address">ул. Пушкинская, д. 78А</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Ленина</div>
-						  	<div class="accordion__block_address">ул. Ленина, д. 211</div>
-						  </div>
-						  <div class="accordion__block fic">
-						  	<div class="accordion__block_intro">BeautyCity Красная</div>
-						  	<div class="accordion__block_address">ул. Красная, д. 10</div>
-						  </div>
-						</div>
+						<div class="panel salons-panel"></div>
 					</div>
 					<div class="service__form_block service__services">
 						<button class="accordion">(Выберите услугу)</button>
-						<div class="panel">
-							<button class="accordion">Парикмахерские услуги</button>
-						 	<div class="panel">
-							  
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Окрашивание волос</div>
-									  		<div class="accordion__block_item_address">5 000 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Укладка волос</div>
-									  		<div class="accordion__block_item_address">1 500 ₽</div>
-							  			</div>	
-								  </div>
-							  
-							</div>
-						 	<button class="accordion">Ногтевой сервис</button>
-							<div class="panel">
-							  
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Маникюр. Классический</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Педикюр</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Наращивание ногтей</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-								  </div>
-							  
-							</div>
-						 <!--  <div class="accordion__block">
-						  	<div class="accordion__block_intro">Парикмахерские услуги</div>
-						  </div>
-						  <div class="accordion__block">
-						  	<div class="accordion__block_intro">Ногтевой сервис</div>
-						  </div> -->
-						  <button class="accordion">Макияж</button>
-						  <div class="panel">
-
-							  
-							  	<!-- <div class="accordion__block_intro">Макияж</div> -->
-							  		<div class="accordion__block_items">
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Дневной макияж</div>
-									  		<div class="accordion__block_item_address">1 400 ₽</div>
-							  			</div>
-
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Свадебный макияж</div>
-									  		<div class="accordion__block_item_address">3 000 ₽</div>
-							  			</div>
-							  			<div class="accordion__block_item fic">
-							  				<div class="accordion__block_item_intro">Вечерний макияж</div>
-									  		<div class="accordion__block_item_address">2 000 ₽</div>
-							  			</div>
-								  </div>
-							  
-							</div>
-						</div>
+						<div class="panel services-panel"></div>
 					</div>
 					<div class="service__form_block service__masters">
 						<button class="accordion">(Выберите мастера)</button>
-						<div class="panel">
-						  
-						</div>
-						  
-						
-
+						<div class="panel masters-panel"></div>
 					</div>
-					
 				</form>
 			</div>
 		</div>
@@ -265,30 +144,7 @@
 						</div>
 						<div class="col-md-8">
 							<div class="time__elems">
-								<div class="time__items">
-									<div class="time__elems_intro">Утро</div>
-									<div class="time__elems_elem fic">
-										<button data-time="10:00" class="time__elems_btn">10:00</button>
-										<button data-time="10:30" class="time__elems_btn">10:30</button>
-									</div>
-								</div>
-								<div class="time__items">
-									<div class="time__elems_intro">День</div>
-									<div class="time__elems_elem fic">
-										<button data-time="12:00" class="time__elems_btn">12:00</button>
-										<button data-time="12:30" class="time__elems_btn">12:30</button>
-										<button data-time="15:00" class="time__elems_btn">15:00</button>
-										<button data-time="16:30" class="time__elems_btn">16:30</button>
-									</div>
-								</div>
-								<div class="time__items">
-									<div class="time__elems_intro">Вечер</div>
-									<div class="time__elems_elem fic">
-										<button data-time="17:00" class="time__elems_btn">17:00</button>
-										<button data-time="18:30" class="time__elems_btn">18:30</button>
-										<button data-time="19:00" class="time__elems_btn">19:00</button>
-									</div>
-								</div>
+								<div class="time__items timeslots-panel"></div>
 							</div>
 						</div>
 					</div>
@@ -297,7 +153,7 @@
 					<div class="row">
 						<div class="col-md-12">
 							<button  class="time__btns_next">Далее</button>
-							<button  class="time__btns_home">На главную</button>
+							<button  class="time__btns_home" onclick="window.location.href='/'">На главную</button>
 						</div>
 					</div>
 				</div>
@@ -374,9 +230,8 @@
 			</div>
 		</div>
 	</footer>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" integrity="sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="{% static 'js/air-datepicker.js' %}"></script>
 	<script src="{% static 'js/jquery.arcticmodal-0.3.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>

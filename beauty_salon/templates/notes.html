@@ -272,10 +272,10 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="{% url 'beauty_salon:feedback' %}">Оставить отзыв</a>
-										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
+										{% comment %} <a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a> {% endcomment %}
 										<button class="notes__footer_btn payPopupOpen">Оплатить</button>
-										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -295,7 +295,7 @@
 											<div class="notes__main_number">Запись №{{ appointment.id }}</div>
 											<div class="notes__main_address">{{ appointment.salon.address }}</div>
 										</div>
-										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay payid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 									<div class="notes__main_block__main ">
 										<div class="notes__main_block__main_items">
@@ -321,9 +321,9 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="#" class="notes__footer_link rewiewPopupOpen">Оставить отзыв</a>
+										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link ">Оставить отзыв</a>
 										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
-										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay payid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 								</div>
 							</div>
@@ -332,14 +332,14 @@
 							{% endfor %}
 						</div>
 					</div>
-					<div class="col-md-12 col-lg-3 dec">
+					{% comment %} <div class="col-md-12 col-lg-3 dec">
 						<div class="notes__pay">
 							<button class="notes__pay_btn">Оплатить онлайн</button>
 							<div class="notes__pay_info">Вы можете оплатить услуги прямо сейчас онлайн или расплатиться  в салоне</div>
 							<div class="notes__pay_intro">Сумма оплаты</div>
 							<div class="notes__pay_sum">3 900 руб</div>
 						</div>
-					</div>
+					</div> {% endcomment %}
 				</div>
 			</div>
 		</div>

@@ -288,7 +288,11 @@
 							<div class="notes__main_title">ПРОШЕДШИЕ</div>
 							{% for appointment in past_appointments %}
 							<div class="notes__main_block">
+								{% if appointment.service.image.url %}
+								<img src={{ appointment.service.image.url }} alt="service1" class="notes__main_block__img">
+								{% else %}
 								<img src="{% static 'img/services/service1.svg' %}" alt="service1" class="notes__main_block__img">
+								{% endif %}
 								<div class="notes__main_block__elems">
 									<div class="notes__main_block__header fic">
 										<div class="notes__main_block__header__itesm fic">

@@ -61,10 +61,11 @@ class AppointmentAdmin(admin.ModelAdmin):
         "service", 
         "date",
         "time",
-        "status"
+        "status",
+        "comment"
     )
     list_filter = ("status", "date", "master", "salon", "service")
-    search_fields = ("phone", "client_name", "master__name", "salon__name", "service__name")
+    search_fields = ("phone", "client_name", "master__name", "salon__name", "service__name", "comment")
     autocomplete_fields = ("master", "salon", "service", "client")
 
     def get_client_name_display(self, obj):

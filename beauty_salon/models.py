@@ -42,6 +42,11 @@ class Service(models.Model):
         blank=True,
         validators=[MinValueValidator(0)]
     )
+    image = models.ImageField(
+        upload_to="media/service_img/",
+        verbose_name="Картинка",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Услуга"

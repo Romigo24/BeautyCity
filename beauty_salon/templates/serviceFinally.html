@@ -151,7 +151,7 @@
 								<textarea name="contactsTextarea" class="contacts__form_textarea" placeholder="Вопрос(необязательно)"></textarea>
 								<div class="contacts__form_checkboxBlock fic">
 									<input type="checkbox" class="contacts__form_checkbox" checked="">
-									<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+									<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 								</div>
 								<button type="submit" class="serviceFinallys__form_btn">Записаться</button>
 								<button type="button" class="serviceFinallys__form_back" onclick="window.history.back()">Назад</button>
@@ -213,7 +213,7 @@
 					<div class="footer__bottom">
 						<div class="row">
 							<div class="col-md-4 col-lg-3">
-								<a href="#" class="footer__link">Политика конфиденциальности</a>
+								<a href="{% url 'beauty_salon:privacy_policy' %}" class="footer__link">Политика конфиденциальности</a>
 							</div>
 							<div class="col-md-3">
 								<div class="footer__copy">2022. Все права защищены</div>
@@ -247,7 +247,7 @@
 				</div>
 				<div class="contacts__form_checkboxBlock fic">
 					<input type="checkbox" class="contacts__form_checkbox" checked="">
-					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 				</div>
 				<button type="submit" class="popup__btn authPopup__btn">Отправить</button>
 			</form>

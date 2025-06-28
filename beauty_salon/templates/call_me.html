@@ -17,7 +17,7 @@
         </div>
         <div class="contacts__form_checkboxBlock fic">
             <input type="checkbox" name="checkbox" class="contacts__form_checkbox" checked required>
-            <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфиденциальности</span>
+            <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
         </div>
         <button type="submit" class="popup__btn authPopup__btn">Отправить</button>
     </form>

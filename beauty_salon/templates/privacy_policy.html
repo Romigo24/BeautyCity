@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности - Beauty City</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    <header id="header">
+        <div class="container">
+            <div class="header">
+                <div class="row">
+                    <div class="col-5 col-md-3 col-lg-2">
+                        <a href="/">
+                            <img src="{% static 'img/Logo.svg' %}" alt="Logo" class="logo header__logo">
+                        </a>
+                    </div>
+                    <div class="col-md-5">
+                        <nav>
+                            <ul class="menu">
+                                <li class="menu__item"><a href="/#masters" class="menu__item_link">Мастера</a></li>
+                                <li class="menu__item"><a href="/#services" class="menu__item_link">Услуги</a></li>
+                                <li class="menu__item"><a href="/#reviews" class="menu__item_link">Отзывы</a></li>
+                                <li class="menu__item"><a href="/#contacts" class="menu__item_link">Контакты</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="col-2 col-md-2 col-lg-3">
+                        {% if user.is_authenticated %}
+                            <div class="accaunt__settings fic">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+                                {% else %}
+                                    <img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+                                <span class="accaunt__ava_name">
+                                    <a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
+                                </span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                        <div class="header__block">
+                        <a href="{% url 'beauty_salon:call_me' %}"><button class="header__block_btn">Перезвоните мне</button></a>
+                            <a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+                            <img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
+                            <a href="{% url 'beauty_salon:login' %}">Войти</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="privacy-policy">
+        <div class="container">
+            <div class="privacy-policy" style="padding: 50px 0;">
+                <div class="breadCrumbs">
+                    <a href="/" class="breadCrumbs__item">На главную</a>
+                </div>
+                <div class="privacy-policy__content">
+                    <h1 class="privacy-policy__title">Политика конфиденциальности</h1>
+                    <div class="privacy-policy__text">
+                        <p>Настоящая Политика конфиденциальности описывает, как Beauty City собирает, использует и защищает вашу личную информацию при использовании нашего сайта и услуг.</p>
+                        
+                        <h2>1. Сбор информации</h2>
+                        <p>Мы собираем следующую информацию:</p>
+                        <ul>
+                            <li>Имя и контактные данные (телефон, email)</li>
+                            <li>Информация о записях на услуги</li>
+                            <li>Отзывы и комментарии</li>
+                            <li>Техническая информация о посещении сайта</li>
+                        </ul>
+
+                        <h2>2. Использование информации</h2>
+                        <p>Собранная информация используется для:</p>
+                        <ul>
+                            <li>Обработки записей на услуги</li>
+                            <li>Связи с клиентами</li>
+                            <li>Улучшения качества услуг</li>
+                            <li>Отправки уведомлений о записях</li>
+                        </ul>
+
+                        <h2>3. Защита информации</h2>
+                        <p>Мы принимаем все необходимые меры для защиты вашей личной информации от несанкционированного доступа, изменения, раскрытия или уничтожения.</p>
+
+                        <h2>4. Передача информации третьим лицам</h2>
+                        <p>Мы не продаем, не обмениваем и не передаем вашу личную информацию третьим лицам без вашего согласия, за исключением случаев, предусмотренных законодательством.</p>
+
+                        <h2>5. Согласие на обработку персональных данных</h2>
+                        <p>Используя наш сайт и услуги, вы даете согласие на обработку ваших персональных данных в соответствии с настоящей Политикой конфиденциальности.</p>
+
+                        <h2>6. Изменения в политике</h2>
+                        <p>Мы оставляем за собой право вносить изменения в настоящую Политику конфиденциальности. Все изменения будут опубликованы на этой странице.</p>
+
+                        <h2>7. Контактная информация</h2>
+                        <p>Если у вас есть вопросы по поводу настоящей Политики конфиденциальности, свяжитесь с нами:</p>
+                        <p>Телефон: +7 (917) 902 38 00</p>
+                        <p>Email: info@beautycity.ru</p>
+
+                        <div class="privacy-policy__download">
+                            <p><strong>Полная версия политики конфиденциальности:</strong></p>
+                            <a href="{% static 'consent_form.pdf' %}" target="_blank" class="btn" style="background: #FFC107; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;">
+                                Скачать PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="container">
+            <div class="footer">
+                <div class="footer__block">
+                    <div class="row">
+                        <div class="col-md-3 col-lg-2">
+                            <a href="/"><img src="{% static 'img/Logo.svg' %}" alt="logo" class="footer__logo"></a>
+                        </div>
+                        <div class="col-md-5 minMobHide">
+                            <nav>
+                                <ul class="menu">
+                                    <li class="menu__item"><a href="/#masters" class="menu__item_link">Мастера</a></li>
+                                    <li class="menu__item"><a href="/#services" class="menu__item_link">Услуги</a></li>
+                                    <li class="menu__item"><a href="/#reviews" class="menu__item_link">Отзывы</a></li>
+                                    <li class="menu__item"><a href="/#contacts" class="menu__item_link">Контакты</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="footer__contact">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="footer__data">с 10:00 до 20:00 без выходных</div>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="tel:+79179023800" class="contacts__info_tel">+7 (917) 902 38 00</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

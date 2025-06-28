@@ -306,16 +306,22 @@ $(document).ready(function() {
 	$('.salonsSlider').slick({
 		arrows: true,
 	  slidesToShow: 4,
-	  infinite: true,
 	  prevArrow: $('.salons .leftArrow'),
 	  nextArrow: $('.salons .rightArrow'),
 	  responsive: [
+	  	{
+	      breakpoint: 1199,
+	      settings: {
+	        
+
+	        slidesToShow: 3
+	      }
+	    },
 	    {
 	      breakpoint: 991,
 	      settings: {
 	        
-	      	centerMode: true,
-  			//centerPadding: '60px',
+
 	        slidesToShow: 2
 	      }
 	    },
@@ -508,6 +514,21 @@ $(document).ready(function() {
 		}
 		const params = $.param(selected);
 		window.location.href = `/service-finally/?${params}`;
+	});
+
+	// Обработка кнопок "Записаться" на главной странице
+	$(document).on('click', '.masters__footer_btn', function(e) {
+		e.preventDefault();
+		const masterBlock = $(this).closest('.masters__block');
+		const masterId = masterBlock.find('.masters__header_name').data('master-id');
+		
+		if (masterId) {
+			// Переходим на страницу service с предвыбранным мастером
+			window.location.href = `/service/?master=${masterId}`;
+		} else {
+			// Если ID мастера не найден, просто переходим на страницу service
+			window.location.href = '/service/';
+		}
 	});
 
 	// После выбора мастера или салона обновляем доступные даты

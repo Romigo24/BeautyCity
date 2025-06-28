@@ -80,22 +80,22 @@
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
 						{% if user.is_authenticated %}
-							<div class="accaunt__settings fic">
+							<div class="accaunt__settings fic" style="width: 50px; height: 50px;">
 								{% if user.avatar %}
-								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-								<span class="accaunt__ava_name">
-									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
-								</span>
 								{% endif %}
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
+								</span>
 							</div>
 						{% else %}
 						<div class="header__block">
 						<a href="{% url 'beauty_salon:call_me' %}"><button class="header__block_btn">Перезвоните мне</button></a>
-							<a href="{% url 'beauty_salon:register' %}">Регистрация</a>
+							<a href="{% url 'beauty_salon:register' %}" class="menu__item_link">Регистрация</a>
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<a href="{% url 'beauty_salon:login' %}">Войти</a>
+							<a href="{% url 'beauty_salon:login' %}" class="menu__item_link">Войти</a>
 						</div>
 						{% endif %}
 					</div>
@@ -597,7 +597,7 @@
 					<input type="text" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required="">
 				</div>
 				<div class="contacts__form_checkboxBlock fic">
-					<input type="checkbox" class="contacts__form_checkbox" checked="">
+					<input type="checkbox" class="contacts__form_checkbox" checked="" required>
 					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 				</div>
 				<button type="submit" class="popup__btn authPopup__btn">Отправить</button>

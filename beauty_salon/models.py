@@ -1,8 +1,9 @@
+from datetime import date
+
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
-from django.conf import settings
-from datetime import date
 
 
 class Client(models.Model):
@@ -10,7 +11,7 @@ class Client(models.Model):
         verbose_name="Телефон",
         region="RU",
     )
-    avatar = models.ImageField(
+    avatar = models.FileField(
         upload_to="media/avatars/",
         null=True,
         blank=True,
@@ -42,6 +43,11 @@ class Service(models.Model):
         blank=True,
         validators=[MinValueValidator(0)]
     )
+    image = models.FileField(
+        upload_to="media/salon_img/",
+        verbose_name="Картинка",
+        blank=True,
+    )
     image = models.ImageField(
         upload_to="media/service_img/",
         verbose_name="Картинка",
@@ -71,21 +77,7 @@ class Salon(models.Model):
         max_length=50,
         blank=True,
     )
-    latitude = models.DecimalField(
-        "Широта",
-        max_digits=9,
-        decimal_places=6,
-        null=True,
-        blank=True,
-    )
-    longitude = models.DecimalField(
-        "Долгота",
-        max_digits=9,
-        decimal_places=6,
-        null=True,
-        blank=True,
-    )
-    image = models.ImageField(
+    image = models.FileField(
         upload_to="media/salon_img/",
         verbose_name="Картинка",
         blank=True,
@@ -180,7 +172,7 @@ class Appointment(models.Model):
         ("18:00", "18:00"),
         ("19:00", "19:00"),
     )
-    
+
     # Основная информация о записи
     status = models.CharField(
         verbose_name="Статус записи",

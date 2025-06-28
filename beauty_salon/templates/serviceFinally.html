@@ -82,17 +82,17 @@
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
 						<div class="header__block">
-						<button class="header__block_btn">Перезвоните мне</button>
-						<div class="header__block_auth">
+						<a href="{% url 'beauty_salon:call_me' %}"><button class="header__block_btn">Перезвоните мне</button></a>
+						<div class="header__block">
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">{% if user.is_authenticated %}{{ user.username }}{% else %}Войти{% endif %}</span>
+							<span class="header__block_auth__intro">
+								{% if user.is_authenticated %}{% else %}Войти{% endif %}
+							<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
+						</span>
 						</div>
 					</div>
 					</div>
 				</div>
-				
-				
-				
 			</div>
 		</div>
 	</header>
@@ -150,7 +150,7 @@
 								</div>
 								<textarea name="contactsTextarea" class="contacts__form_textarea" placeholder="Вопрос(необязательно)"></textarea>
 								<div class="contacts__form_checkboxBlock fic">
-									<input type="checkbox" class="contacts__form_checkbox" checked="">
+									<input type="checkbox" class="contacts__form_checkbox" checked="" required>
 									<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 								</div>
 								<button type="submit" class="serviceFinallys__form_btn">Записаться</button>

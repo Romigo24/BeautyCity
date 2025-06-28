@@ -41,7 +41,7 @@
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
 								{% endif %}
-								<span class="accaunt__ava_name">{{ user.username }}</span>
+								<span class="accaunt__ava_name" class="accaunt__ava_img">{{ user.username }}</span>
 							</div>
 							<div class="accaunt__settings fic" style="gap: 8px;">
 								{% if is_manager %}
@@ -135,18 +135,26 @@
 					</nav>
 					</div>
 					<div class="col-3 col-md-2 col-lg-3">
-						<div class="header__block">
-						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
+							<div class="header__block">
+							{% if is_manager %}
+							{% else %}
+								<a href="{% url 'beauty_salon:call_me' %}" class="menu__item_link"><button class="header__block_btn">Перезвоните мне</button></a>
+							{% endif %}
 						<div class="header__block_auth">
-							<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
+									{% if user.avatar %}
+										<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+									{% else %}
+										<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
+									{% endif %}
+							{% comment %} <img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img"> {% endcomment %}
 							<span class="header__block_auth__intro">{% if user.is_authenticated %}{{ user.username }}{% else %}Войти{% endif %}</span>
 						</div>
 					</div>
 					</div>
 				</div>
-				
-				
-				
+
+
+
 			</div>
 		</div>
 	</header>
@@ -162,7 +170,7 @@
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
 								{% endif %}
-								<span class="accaunt__ava_name">{{ user.username }}</span>
+								<span class="accaunt__ava_name" >{{ user.username }}</span>
 							</div>
 							<div class="accaunt__settings fic" style="gap: 8px;">
 								{% if is_manager %}
@@ -221,8 +229,8 @@
 								<div class="notes__pay_title">Оплата услуг</div>
 								<div class="notes__pay_info">Вы можете оплатить услуги прямо сейчас онлайн или расплатиться  в салоне</div>
 							</div>
-							
-							
+
+
 							<div class="notes__pay_block">
 								<div class="notes__pay_intro">Сумма оплаты</div>
 								<div class="notes__pay_sum">3 900 руб</div>
@@ -240,7 +248,7 @@
 											<div class="notes__main_number">Запись №{{ appointment.id }}</div>
 											<div class="notes__main_address">{{ appointment.salon.address }}</div>
 										</div>
-										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay unPaid">{% if not appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 									<div class="notes__main_block__main ">
 										<div class="notes__main_block__main_items">
@@ -266,10 +274,10 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link">Оставить отзыв</a>
-										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
+										{% if appointment.payment %}
 										<button class="notes__footer_btn payPopupOpen">Оплатить</button>
-										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										{% endif %}
+										<div class="notes__main_pay unPaid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 								</div>
 							</div>
@@ -293,7 +301,7 @@
 											<div class="notes__main_number">Запись №{{ appointment.id }}</div>
 											<div class="notes__main_address">{{ appointment.salon.address }}</div>
 										</div>
-										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay payid">{% if appointment.payment  %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 									<div class="notes__main_block__main ">
 										<div class="notes__main_block__main_items">
@@ -319,9 +327,9 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link">Оставить отзыв</a>
+										<a href="{% url 'beauty_salon:feedback' %}?master_id={{ appointment.master.id }}" class="notes__footer_link">Оставить отзыв</a>
 										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
-										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay payid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 								</div>
 							</div>
@@ -330,14 +338,7 @@
 							{% endfor %}
 						</div>
 					</div>
-					<div class="col-md-12 col-lg-3 dec">
-						<div class="notes__pay">
-							<button class="notes__pay_btn">Оплатить онлайн</button>
-							<div class="notes__pay_info">Вы можете оплатить услуги прямо сейчас онлайн или расплатиться  в салоне</div>
-							<div class="notes__pay_intro">Сумма оплаты</div>
-							<div class="notes__pay_sum">3 900 руб</div>
-						</div>
-					</div>
+					<div class="col-md-12 col-lg-3 dec" >
 				</div>
 			</div>
 		</div>
@@ -364,9 +365,9 @@
 					<div class="footer__contact">
 						<div class="row">
 							<div class="col-md-4">
-								
+
 									<div class="footer__data">с 10:00 до 20:00  без выходных</div>
-									
+
 							</div>
 							<div class="col-md-3">
 								<a href="tel:+79179023800" class="contacts__info_tel">+7 (917) 902 38 00</a>
@@ -389,7 +390,7 @@
 					<div class="footer__bottom">
 						<div class="row">
 							<div class="col-md-4 col-lg-3">
-								<a href="#" class="footer__link">Политика конфиденциальности</a>
+								<a href="{% url 'beauty_salon:privacy_policy' %}" class="footer__link" target="_blank">Политика конфиденциальности</a>
 							</div>
 							<div class="col-md-3">
 								<div class="footer__copy">2022. Все права защищены</div>
@@ -403,11 +404,11 @@
 								</div>
 							</div>
 						</div>
-						
-						
-						
+
+
+
 					</div>
-					
+
 				</div>
 			</div>
 		</div>
@@ -458,8 +459,8 @@
 				<input type="text" name="dateVis" class="paymentPopup__form_input popup__input" placeholder="Дата посещения" required="">
 				<textarea name="popupTextarea" class="reviewPopup__form_textarea" placeholder="Текст отзыва"></textarea>
 				<div class="contacts__form_checkboxBlock fic">
-					<input type="checkbox" class="contacts__form_checkbox" checked="">
-					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+					<input type="checkbox" class="contacts__form_checkbox" checked="" required>
+					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 				</div>
 				<button class="tipsPopup__btn popup__btn">Оплатить</button>
 			</form>
@@ -471,4 +472,3 @@
 	<script src="{% static 'js/jquery.arcticmodal-0.3.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
 </body>
-</html>

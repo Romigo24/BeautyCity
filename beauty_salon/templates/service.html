@@ -85,10 +85,10 @@
 								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-								<span class="accaunt__ava_name">
-									<a href="{% url 'beauty_salon:notes' %}" >{{ user.username }}</a>
-								</span>
 								{% endif %}
+								<span class="accaunt__ava_name">
+									<a href="{% url 'beauty_salon:notes' %}" class="menu__item_link">{{ user.username }}</a>
+								</span>
 							</div>
 						{% else %}
 						<div class="header__block">
@@ -114,6 +114,13 @@
 				</div>
 				<div class="service__block">
 					<h1 class="service__title">Запись на услугу</h1>
+				{% comment %} <a>
+					<button class="service__btn btn" 
+							onclick="alert('Запись по телефону: +7 (917) 902 38 00')">
+					Запись по телефону
+					</button>
+				</a> {% endcomment %}
+					{% comment %} <button class="service__btn btn">Запись по телефону</button> {% endcomment %}
 					<button class="service__btn btn" onclick="openPhoneBooking()">Запись по телефону</button>
 				</div>
 				<form action="#" class="service__form">

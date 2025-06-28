@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from datetime import date, datetime
+
+from beauty_salon.utils import get_month_info
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
-from .api import api_salons, api_masters, api_services, api_timeslots
-from .models import Salon, Master, Service, Appointment, Client, Feedback
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404, redirect, render
+
 from .forms import LoginForm, RegisterUser
+from .models import Appointment, Client, Feedback, Master, Salon, Service
 from .utils import validate_phone
-from datetime import datetime
-from django.utils import timezone
-from datetime import timedelta
 
 
 def index(request):
@@ -145,19 +146,28 @@ def service_finally(request):
         return render(request, 'serviceFinally.html', context)
 
 
+@login_required
 def notes(request):
+
     if not request.user.is_authenticated:
         return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
-
     try:
         client = Client.objects.get(user=request.user)
     except Client.DoesNotExist:
         return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
 
-    from datetime import date
     today = date.today()
-    upcoming_appointments = Appointment.objects.filter(client=client, date__gte=today, status__in=['recorded']).order_by('date', 'time')
-    past_appointments = Appointment.objects.filter(client=client, date__lt=today, status__in=['completed', 'canceled']).order_by('-date', '-time')
+    upcoming_appointments = Appointment.objects.filter(
+        client=client,
+        date__gte=today,
+        status__in=['recorded']
+    ).order_by('date', 'time')
+
+    past_appointments = Appointment.objects.filter(
+        client=client, 
+        date__lt=today, 
+        status__in=['completed', 'canceled']
+    ).order_by('-date', '-time')
 
     return render(request, 'notes.html', {
         'upcoming_appointments': upcoming_appointments,
@@ -223,6 +233,10 @@ def view_feedback(request):
     errors = {}
     data = {}
     masters = Master.objects.all()
+    if request.method == "GET":
+        master_id = request.GET.get("master_id")
+        if master_id:
+            data["master_id"] = master_id
 
     if request.method == "POST":
         contact_name = request.POST.get("fname")
@@ -249,17 +263,20 @@ def view_feedback(request):
         if errors:
             return render(request, "feedback.html", {"errors": errors, "data": data, "masters": masters})
 
-        Feedback.objects.create(
-            client=contact_name,
-            contact_tel=contact_tel,
-            comment=text,
-            create_at=visit_date,
-            master=master
-        )
-        messages.success(request, "Спасибо за отзыв!")
-        return redirect("beauty_salon:index")
+        try:
+            Feedback.objects.create(
+                master=master,
+                client=contact_name,
+                contact_tel=contact_tel,
+                comment=text,
+                create_at=visit_date,
+            )
+            return redirect("beauty_salon:notes")
+        except ValidationError as e:
+            errors = e.message_dict if hasattr(e, "message_dict") else {"error": e.messages}
+            return render(request, "feedback.html", {"errors": errors, "data": data, "masters": masters})
 
-    return render(request, "feedback.html", {"masters": masters})
+    return render(request, "feedback.html", {"masters": masters, "data": data})
 
 
 def is_manager(user):
@@ -269,38 +286,34 @@ def is_manager(user):
 @login_required(login_url="beauty_salon:login")
 @user_passes_test(is_manager, login_url="beauty_salon:login")
 def view_manager(request):
-    now = timezone.now()
-    current_year = timezone.now().year
-    first_day_current_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    month_info = get_month_info()
 
-    last_day_prev_month = first_day_current_month - timedelta(seconds=1)
-    first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
-    data_last_month = Appointment.objects.select_related(
-        "client", "master", "salon", "service").filter(
-            status__in=["recorded", "completed"],
-            date__gte=first_day_prev_month,
-            date__lte=last_day_prev_month,
-            date__year=current_year
+    data_current_month = Appointment.objects.select_related(
+        "client", "master", "salon", "service"
+    ).filter(
+        date__gte=month_info["first_day"],
+        date__lt=month_info["first_day_next"],
+        date__year=month_info["year"]
     )
 
-    visits_this_year = Appointment.objects.filter(
-        status__in=["recorded", "completed"],
-        date__year=current_year
-    ).count()
-
-    total_payment_last_month = sum(order.service.price for order in data_last_month if order.service)
-    visits_last_month = data_last_month.count()
-    percent_visits = (visits_last_month / visits_this_year) * 100 if visits_this_year else 0
+    visits_this_year = Appointment.objects.filter(date__year=month_info["year"]).count()
+    visits_month = data_current_month.count()
+    paid_count = data_current_month.filter(status="completed").count()
+    percent_paid = (paid_count / visits_month) * 100 if visits_month else 0
+    total_payment_current_month = sum(order.service.price for order in data_current_month.filter(status="completed") if order.service)
+    percent_visits = (visits_month / visits_this_year) * 100 if visits_this_year else 0
 
     return render(
         request,
         "manager.html",
         {
-            "total_payment_last_month": total_payment_last_month,
-            "visits_last_month": visits_last_month,
+            "current_month": month_info["month_name"],
+            "total_payment_current_month": total_payment_current_month,
+            "visits_month": visits_month,
             "percent_visits": percent_visits,
             "visits_this_year": visits_this_year,
+            "paid_count": paid_count,
+            "percent_paid": percent_paid,
         }
     )
 

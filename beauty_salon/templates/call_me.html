@@ -4,11 +4,23 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>Перезвонить</title>
 	<link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body style="display: flex; justify-content: center; align-items: center; min-height: 60vh; background-color:rgb(239, 243, 229);">
 	<div class="review popup">
+        {% if errors %}
+            <div class="alert alert-danger" style="color: red; margin-bottom: 1em;">
+                <strong>Пожалуйста, исправьте ошибки:</strong>
+                <ul>
+                {% for field, field_errors in errors.items %}
+                    {% for error in field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+		{% endif %}
     <form method="post" action="" class="authPopup__form">
         {% csrf_token %}
         <p class="popup__text authPopup__text">Введите свой номер телефона, и мы вам перезвоним</p>
@@ -20,6 +32,8 @@
             <span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
         </div>
         <button type="submit" class="popup__btn authPopup__btn">Отправить</button>
+        <br>
+        <button type="button" class="popup__btn authPopup__btn" onclick="window.location.href='/'">Назад</button>
     </form>
 	</div>
 </body>

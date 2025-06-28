@@ -45,7 +45,8 @@ def index(request):
 
 
 def service(request):
-    return render(request, 'service.html')
+    salons = Salon.objects.order_by("name")
+    return render(request, 'service.html', {"salons": salons})
 
 
 def service_finally(request):
@@ -302,3 +303,8 @@ def view_manager(request):
             "percent_paid": percent_paid,
         }
     )
+
+
+def privacy_policy(request):
+    """Отображение политики конфиденциальности"""
+    return render(request, 'privacy_policy.html')

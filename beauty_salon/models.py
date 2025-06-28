@@ -48,6 +48,12 @@ class Service(models.Model):
         verbose_name="Картинка",
         blank=True,
     )
+    image = models.ImageField(
+        upload_to="media/service_img/",
+        verbose_name="Картинка",
+        blank=True,
+    )
+
     class Meta:
         verbose_name = "Услуга"
         verbose_name_plural = "Услуги"

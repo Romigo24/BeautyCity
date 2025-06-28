@@ -121,6 +121,7 @@
 					</button>
 				</a>
 					{% comment %} <button class="service__btn btn">Запись по телефону</button> {% endcomment %}
+					<button class="service__btn btn" onclick="openPhoneBooking()">Запись по телефону</button>
 				</div>
 				<form action="#" class="service__form">
 					<div class="service__form_block service__salons">
@@ -213,7 +214,7 @@
 					<div class="footer__bottom">
 						<div class="row">
 							<div class="col-md-4 col-lg-3">
-								<a href="#" class="footer__link">Политика конфиденциальности</a>
+								<a href="{% url 'beauty_salon:privacy_policy' %}" class="footer__link">Политика конфиденциальности</a>
 							</div>
 							<div class="col-md-3">
 								<div class="footer__copy">2022. Все права защищены</div>
@@ -236,10 +237,41 @@
 			</div>
 		</div>
 	</footer>
+	
+	<!-- Модальное окно для записи по телефону -->
+	<div style="display: none;">
+		<div class="box-modal phoneBookingPopup popup" id="phoneBookingModal">
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+			<div class="popup__title phoneBookingPopup__title">Запись по телефону</div>
+			<p class="popup__text phoneBookingPopup__text">Оставьте заявку, и мы перезвоним вам для записи на услугу</p>
+			<form method="post" action="{% url 'beauty_salon:call_me' %}" class="phoneBookingPopup__form">
+				{% csrf_token %}
+				<div class="contacts__form_block fic">
+					<input type="text" name="fname" class="contacts__form_iunput" placeholder="Введите имя" required>
+					<div class="contacts__form_inputBlock">
+						<input type="text" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required>
+					</div>
+				</div>
+				<textarea name="contactsTextarea" class="contacts__form_textarea" placeholder="Укажите желаемую услугу, салон или мастера (необязательно)"></textarea>
+				<div class="contacts__form_checkboxBlock fic">
+					<input type="checkbox" name="checkbox" class="contacts__form_checkbox" checked required>
+					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
+				</div>
+				<button type="submit" class="popup__btn phoneBookingPopup__btn">Отправить заявку</button>
+			</form>
+		</div>
+	</div>
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="{% static 'js/air-datepicker.js' %}"></script>
 	<script src="{% static 'js/jquery.arcticmodal-0.3.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
+	
+	<script>
+		function openPhoneBooking() {
+			$('#phoneBookingModal').arcticmodal();
+		}
+	</script>
 </body>
 </html>

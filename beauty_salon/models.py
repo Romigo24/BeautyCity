@@ -247,6 +247,30 @@ class Appointment(models.Model):
         null=True,
         blank=True,
     )
+    PAYMENT_STATUS = (
+        ('pending', 'Ожидает оплаты'),
+        ('waiting', 'Ожидает подтверждения'),
+        ('paid', 'Оплачено'),
+        ('failed', 'Ошибка оплаты')
+    )
+
+    payment_status = models.CharField(
+        "Статус оплаты",
+        max_length=20,
+        choices=PAYMENT_STATUS,
+        default='pending'
+    )
+    yookassa_payment_id = models.CharField(
+        "ID платежа ЮKassa",
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    payment_date = models.DateTimeField(
+        "Дата оплаты",
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Запись"

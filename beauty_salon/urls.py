@@ -5,6 +5,7 @@ from beauty_salon.views import (view_call_me, index, view_login,
                                 service, service_finally, view_feedback, view_manager, privacy_policy)
 from django.contrib.auth.views import LogoutView
 from django.urls import path
+from . import views
 
 app_name = "beauty_salon"
 
@@ -29,4 +30,9 @@ urlpatterns = [
     path('api/services/', api_services, name='api_services'),
     path('api/timeslots/', api_timeslots, name='api_timeslots'),
     path('api/dates/', api_dates, name='api_dates'),
+
+    path('payment/create/<int:appointment_id>/', views.create_payment, name='create_payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/fail/', views.payment_fail, name='payment_fail'),
+    path('yookassa-webhook/', views.yookassa_webhook, name='yookassa_webhook'),
 ]

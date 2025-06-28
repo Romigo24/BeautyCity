@@ -1,5 +1,13 @@
 import os
+from dotenv import load_dotenv
 from pathlib import Path
+
+
+load_dotenv()
+
+YOOKASSA_SHOP_ID = os.environ['YOOKASSA_SHOP_ID']
+YOOKASSA_SECRET_KEY = os.environ['YOOKASSA_SECRET_KEY']
+YOOKASSA_RETURN_URL = 'http://127.0.0.1:8000/notes/'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

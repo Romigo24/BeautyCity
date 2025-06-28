@@ -1,16 +1,104 @@
 from datetime import date, datetime
-
+import json
 from beauty_salon.utils import get_month_info
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
+from yookassa import Configuration, Payment
 from .forms import LoginForm, RegisterUser
 from .models import Appointment, Client, Feedback, Master, Salon, Service
 from .utils import validate_phone
 
+
+
+Configuration.account_id = settings.YOOKASSA_SHOP_ID
+Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
+
+
+def create_payment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    payment = Payment.create({
+        "amount": {
+            "value": str(appointment.service.price),
+            "currency": "RUB"
+        },
+        "confirmation": {
+            "type": "redirect",
+            "return_url": request.build_absolute_uri(
+                reverse('beauty_salon:notes') + f'?appointment_id={appointment.id}'
+            )
+        },
+        "capture": True,
+        "description": f"Оплата услуги: {appointment.service.name}",
+        "metadata": {
+            "appointment_id": appointment.id
+        }
+    })
+
+    appointment.yookassa_payment_id = payment.id
+    appointment.payment_status = 'waiting'
+    appointment.save()
+
+    return redirect(payment.confirmation.confirmation_url)
+
+def payment_success(request):
+    payment_id = request.GET.get('payment_id')
+    if payment_id:
+        try:
+            payment = Payment.find_one(payment_id)
+            if payment.status == 'succeeded':
+                appointment = Appointment.objects.get(yookassa_payment_id=payment_id)
+                appointment.payment_status = 'paid'
+                appointment.payment_date = timezone.now()
+                appointment.save()
+                messages.success(request, 'Оплата прошла успешно!')
+        except Exception:
+            pass
+
+    return redirect('beauty_salon:notes')
+
+def payment_fail(request):
+    payment_id = request.GET.get('payment_id')
+    if payment_id:
+        try:
+            appointment = Appointment.objects.get(yookassa_payment_id=payment_id)
+            appointment.payment_status = 'failed'
+            appointment.save()
+            messages.error(request, 'Оплата не была завершена')
+        except Exception:
+            pass
+
+    return redirect('beauty_salon:notes')
+
+@csrf_exempt
+def yookassa_webhook(request):
+    if request.method == 'POST':
+        event_json = json.loads(request.body)
+        payment_id = event_json['object']['id']
+
+        try:
+            appointment = Appointment.objects.get(yookassa_payment_id=payment_id)
+            payment = Payment.find_one(payment_id)
+
+            if payment.status == 'succeeded':
+                appointment.payment_status = 'paid'
+                appointment.payment_date = timezone.now()
+                appointment.save()
+
+        except Exception:
+            pass
+
+    return HttpResponse(status=200)
 
 def index(request):
     if request.method == "POST":
@@ -148,26 +236,58 @@ def service_finally(request):
 
 @login_required
 def notes(request):
+    # Обработка статуса оплаты
+    payment_id = request.GET.get('payment_id')
+    appointment_id = request.GET.get('appointment_id')
 
-    if not request.user.is_authenticated:
-        return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
+    if payment_id or appointment_id:
+        try:
+            if payment_id:
+                appointment = Appointment.objects.get(
+                    yookassa_payment_id=payment_id,
+                    client__user=request.user
+                )
+            else:
+                appointment = Appointment.objects.get(
+                    id=appointment_id,
+                    client__user=request.user
+                )
+
+            if appointment.yookassa_payment_id:
+                payment = Payment.find_one(appointment.yookassa_payment_id)
+                if payment.status == 'succeeded' and appointment.payment_status != 'paid':
+                    appointment.payment_status = 'paid'
+                    appointment.payment_date = timezone.now()
+                    appointment.save()
+                    messages.success(request, 'Оплата прошла успешно!')
+                elif payment.status == 'canceled' and appointment.payment_status != 'failed':
+                    appointment.payment_status = 'failed'
+                    appointment.save()
+                    messages.error(request, 'Платеж был отменен')
+        except Appointment.DoesNotExist:
+            messages.error(request, 'Запись не найдена')
+        except Exception:
+            messages.error(request, 'Ошибка при проверке статуса платежа')
+
     try:
         client = Client.objects.get(user=request.user)
+
+        today = date.today()
+        upcoming_appointments = Appointment.objects.filter(
+            client=client,
+            date__gte=today,
+            status__in=['recorded']
+        ).order_by('date', 'time')
+
+        past_appointments = Appointment.objects.filter(
+            client=client, 
+            date__lt=today, 
+            status__in=['completed', 'canceled']
+        ).order_by('-date', '-time')
+
     except Client.DoesNotExist:
-        return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
-
-    today = date.today()
-    upcoming_appointments = Appointment.objects.filter(
-        client=client,
-        date__gte=today,
-        status__in=['recorded']
-    ).order_by('date', 'time')
-
-    past_appointments = Appointment.objects.filter(
-        client=client, 
-        date__lt=today, 
-        status__in=['completed', 'canceled']
-    ).order_by('-date', '-time')
+        upcoming_appointments = []
+        past_appointments = []
 
     return render(request, 'notes.html', {
         'upcoming_appointments': upcoming_appointments,

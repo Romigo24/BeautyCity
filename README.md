@@ -36,7 +36,7 @@
 ## Быстрый старт
 1. Клонирование и установка зависимостей:
 ```bash
-    git clone https://github.com/Romigo24/BeautyCity.git
+    git clone <>
     pip install -r requirements.txt
 ```
 

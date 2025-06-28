@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
+from beauty_salon.utils import get_month_info
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
 from .forms import LoginForm, RegisterUser
 from .models import Appointment, Client, Feedback, Master, Salon, Service
@@ -272,34 +272,33 @@ def is_manager(user):
 @login_required(login_url="beauty_salon:login")
 @user_passes_test(is_manager, login_url="beauty_salon:login")
 def view_manager(request):
-    now = timezone.now()
-    current_year = timezone.now().year
-    first_day_current_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    month_info = get_month_info()
 
-    last_day_prev_month = first_day_current_month - timedelta(seconds=1)
-    first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-
-    data_last_month = Appointment.objects.select_related(
-        "client", "master", "salon", "service").filter(
-            status__in=["recorded", "completed"],
-            date__gte=first_day_prev_month,
-            date__lte=last_day_prev_month,
-            date__year=current_year
+    data_current_month = Appointment.objects.select_related(
+        "client", "master", "salon", "service"
+    ).filter(
+        date__gte=month_info["first_day"],
+        date__lt=month_info["first_day_next"],
+        date__year=month_info["year"]
     )
 
-    visits_this_year = Appointment.objects.filter(date__year=current_year).count()
-
-    total_payment_last_month = sum(order.service.price for order in data_last_month if order.service)
-    visits_last_month = data_last_month.count()
-    percent_visits = (visits_last_month / visits_this_year) * 100 if visits_this_year else 0
+    visits_this_year = Appointment.objects.filter(date__year=month_info["year"]).count()
+    visits_month = data_current_month.count()
+    paid_count = data_current_month.filter(status="completed").count()
+    percent_paid = (paid_count / visits_month) * 100 if visits_month else 0
+    total_payment_current_month = sum(order.service.price for order in data_current_month.filter(status="completed") if order.service)
+    percent_visits = (visits_month / visits_this_year) * 100 if visits_this_year else 0
 
     return render(
         request,
         "manager.html",
         {
-            "total_payment_last_month": total_payment_last_month,
-            "visits_last_month": visits_last_month,
+            "current_month": month_info["month_name"],
+            "total_payment_current_month": total_payment_current_month,
+            "visits_month": visits_month,
             "percent_visits": percent_visits,
             "visits_this_year": visits_this_year,
+            "paid_count": paid_count,
+            "percent_paid": percent_paid,
         }
     )

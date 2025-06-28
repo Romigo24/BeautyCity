@@ -254,17 +254,21 @@
                             <div class="admin__main_block">
                                 <div class="admin__main_block__items">
                                     <div class="admin__main_monthPrise admin__main_block__elem" >
-                                        <div class="admin__main_monthPrise__intro">Сумма оплат за месяц</div>    
-                                        <div class="admin__main_monthPrise__sum" >{{ total_payment_last_month|floatformat:0 }} рублей</div>
+                                        <div class="admin__main_monthPrise__intro">Сумма оплат за {{ current_month }}</div>    
+                                        <div class="admin__main_monthPrise__sum" >{{ total_payment_current_month|floatformat:0 }} рублей</div>
                                     </div>
                                 <div class="admin__main_block__elem">
-                                    <div class="admin__main_monthPrise__intro">Посещений за месяц</div>    
-                                    <div class="admin__main_monthPrise__sum">{{ visits_last_month }}</div>
+                                    <div class="admin__main_monthPrise__intro">Посещений за {{ current_month }}</div>    
+                                    <div class="admin__main_monthPrise__sum">{{ visits_month }}</div>
+                                </div>
+                                <div class="admin__main_block__elem">
+                                    <div class="admin__main_monthPrise__intro">Услуг за {{ current_month }}</div>    
+                                    <div class="admin__main_monthPrise__sum">{{ paid_count }}</div>
                                 </div>
                                 </div>
                                     <div class="admin__main_block__elem">
-                                        <div class="admin__main_monthPrise__intro">Процент посещений</div>    
-                                        <div class="admin__main_monthPrise__circle">{{ percent_visits|floatformat:1 }}%</div>
+                                        <div class="admin__main_monthPrise__intro">Процент посещений за {{ current_month }}</div>    
+                                        <div class="admin__main_monthPrise__circle">{{ percent_paid|floatformat:1 }}%</div>
                                     </div>
                                     <div class="admin__main_block__elem">
                                         <div class="admin__main_monthPrise__intro">Посещений за год</div>    

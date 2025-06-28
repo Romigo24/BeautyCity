@@ -158,8 +158,8 @@ def notes(request):
 
     today = date.today()
     upcoming_appointments = Appointment.objects.filter(
-        client=client, 
-        date__gte=today, 
+        client=client,
+        date__gte=today,
         status__in=['recorded']
     ).order_by('date', 'time')
 
@@ -233,6 +233,10 @@ def view_feedback(request):
     errors = {}
     data = {}
     masters = Master.objects.all()
+    if request.method == "GET":
+        master_id = request.GET.get("master_id")
+        if master_id:
+            data["master_id"] = master_id
 
     if request.method == "POST":
         contact_name = request.POST.get("fname")

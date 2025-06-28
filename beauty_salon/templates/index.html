@@ -161,6 +161,33 @@
 						</div>
 					</div>
 					{% empty %}
+					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
+						<div class="salons__block">
+							<img src="{% static 'img/salons/salon1.svg' %}" alt="salon" class="salons__block_img">
+							<div class="salons__elems">
+								<div class="block__title salons__elems_title">BeautyCity Пушкинская</div>
+								<div class="salons__elems_light">ул. Пушкинская, д. 78А</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
+						<div class="salons__block">
+							<img src="{% static 'img/salons/salon2.svg' %}" alt="salon" class="salons__block_img">
+							<div class="salons__elems">
+								<div class="block__title salons__elems_title">BeautyCity Ленина</div>
+								<div class="salons__elems_light">ул. Ленина, д. 211</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-6 col-md-4 col-lg-4 col-xl-3">
+						<div class="salons__block">
+							<img src="{% static 'img/salons/salon3.svg' %}" alt="salon" class="salons__block_img">
+							<div class="salons__elems">
+								<div class="salons__elems_title">BeautyCity Красная</div>
+								<div class="salons__elems_light">ул. Красная, д. 10</div>
+							</div>
+						</div>
+					</div>
 					{% endfor %}
 				</div>
 			</div>
@@ -266,19 +293,21 @@
 								<div class="masters__header_elmes">
 									<div class="masters__header_name">{{ master.name }}</div>
 									<img src="{% static 'img/rating.svg' %}" alt="rating" class="masters__header_rating">
-									<div class="masters__header_reviews">
-										{{ master.feedbacks.count }} отзывов
-									</div>
+									<div class="masters__header_reviews">{{ master.feedbacks.count }} отзывов</div>
 								</div>
 							</div>
 							<div class="masters__main">
 								<div class="masters__main_speciality">СПЕЦИАЛЬНОСТЬ:</div>
 								<div class="masters__main_intro">
-									{% for service in master.services.all %}
-										{{ service.name }}{% if not forloop.last %}, {% endif %}
-									{% empty %}
-										Мастер
-									{% endfor %}
+									{% if master.specialty %}
+										{{ master.specialty }}
+									{% else %}
+										{% for service in master.services.all %}
+											{{ service.name }}{% if not forloop.last %}, {% endif %}
+										{% empty %}
+											Мастер
+										{% endfor %}
+									{% endif %}
 								</div>
 							</div>
 							<div class="masters__footer fic">
@@ -543,25 +572,61 @@
 							</div>
 							<div class="col-md-3">
 								<div class="footer__copy">2022. Все права защищены</div>
-					</div>
-					<div style="display: none;">
-						<div class="box-modal confirmPopup popup" id="confirmModal">
-							<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
-							<div class="popup__title confirmPopup__title">Подтвердите номер</div>
-							<p class="popup__text confirmPopup__text">Введите код, полученный по SMS на номер +7 (928) 164 48 60</p>
-							<div class="confirmPopup__number">
-								<input type="text" name="num1" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
-								<input type="text" name="num2" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
-								<input type="text" name="num3" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
-								<input type="text" name="num4" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
-
 							</div>
-							<div class="confirmPopup__sms">Если SMS не пришло вы можете <a href="#" class="popup__link">запросить код повторно</a></div>
-							<div class="confirmPopup__changeNumber">
-								<a href="#" class="confirmPopup__link popup__link">Изменить номер телефона</a>
+							<div class="col-md-3 col-lg-2">
+								<div class="footer__social fic">
+									<a href=""><img src="{% static 'img/waGray.svg' %}" alt="wa" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/vkGray.svg' %}" alt="vk" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/tgGray.svg' %}" alt="tg" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/instaGray.svg' %}" alt="insta" class="contacts__social_icon"></a>
+								</div>
 							</div>
 						</div>
+						
+						
+						
 					</div>
+					
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<div style="display: none;">
+		<div class="box-modal authPopup popup" id="authModal">
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+			<div class="popup__title authPopup__title">Войти по коду</div>
+			<p class="popup__text authPopup__text">Введите свой номер телефона, мы вышлем на него код</p>
+			<form action="#" class="authPopup__form">
+				<div class="contacts__form_inputBlock">
+					<input type="text" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required="">
+				</div>
+				<div class="contacts__form_checkboxBlock fic">
+					<input type="checkbox" class="contacts__form_checkbox" checked="">
+					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+				</div>
+				<button type="submit" class="popup__btn authPopup__btn">Отправить</button>
+			</form>
+		</div>
+	</div>
+	<div style="display: none;">
+		<div class="box-modal confirmPopup popup" id="confirmModal">
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+			<div class="popup__title confirmPopup__title">Подтвердите номер</div>
+			<p class="popup__text confirmPopup__text">Введите код, полученный по SMS на номер +7 (928) 164 48 60</p>
+			<div class="confirmPopup__number">
+				<input type="text" name="num1" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
+				<input type="text" name="num2" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
+				<input type="text" name="num3" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
+				<input type="text" name="num4" class="tipsPopup__form_inputNum popup__input" placeholder="" required="">
+
+			</div>
+			<div class="confirmPopup__sms">Если SMS не пришло вы можете <a href="#" class="popup__link">запросить код повторно</a></div>
+			<div class="confirmPopup__changeNumber">
+				<a href="#" class="confirmPopup__link popup__link">Изменить номер телефона</a>
+			</div>
+		</div>
+	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js" integrity="sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

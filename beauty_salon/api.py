@@ -1,10 +1,7 @@
-from datetime import datetime, timedelta
-
 from django.http import JsonResponse
+from .models import Salon, Master, Service, Appointment
+from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
-
-from .models import Master, Order, Salon, Service
-
 
 @csrf_exempt
 def api_salons(request):
@@ -25,7 +22,6 @@ def api_salons(request):
     } for s in qs.distinct()]
     return JsonResponse(data, safe=False)
 
-
 @csrf_exempt
 def api_masters(request):
     salon_id = request.GET.get('salon')
@@ -43,7 +39,6 @@ def api_masters(request):
         'name': m.name
     } for m in qs.distinct()]
     return JsonResponse(data, safe=False)
-
 
 @csrf_exempt
 def api_services(request):
@@ -64,24 +59,25 @@ def api_services(request):
     } for s in qs.distinct()]
     return JsonResponse(data, safe=False)
 
-
 @csrf_exempt
 def api_timeslots(request):
     salon_id = request.GET.get('salon')
     master_id = request.GET.get('master')
     service_id = request.GET.get('service')
     date = request.GET.get('date')
-    all_slots = dict(Order.APPOINTMENT_TIME).keys()
+    
+    all_slots = dict(Appointment.APPOINTMENT_TIME).keys()
     
     # Фильтруем записи, исключая отмененные и консультации
-    qs = Order.objects.exclude(status__in=['canceled', 'call'])
+    qs = Appointment.objects.exclude(status__in=['canceled', 'call'])
     
     if salon_id:
         qs = qs.filter(salon_id=salon_id)
     if master_id:
         qs = qs.filter(master_id=master_id)
-    if service_id:
-        qs = qs.filter(service_id=service_id)
+    # Убираем фильтрацию по услуге - мастер не может быть занят разными услугами в одно время
+    # if service_id:
+    #     qs = qs.filter(service_id=service_id)
     if date:
         qs = qs.filter(date=date)
     
@@ -90,7 +86,6 @@ def api_timeslots(request):
     free_slots = [slot for slot in all_slots if slot not in busy_slots]
     
     return JsonResponse({'free_slots': free_slots})
-
 
 @csrf_exempt
 def api_dates(request):
@@ -103,15 +98,16 @@ def api_dates(request):
     for i in range(days_ahead):
         d = today + timedelta(days=i)
         # Фильтруем записи, исключая отмененные и консультации
-        qs = Order.objects.exclude(status__in=['canceled', 'call'])
+        qs = Appointment.objects.exclude(status__in=['canceled', 'call'])
         
         if salon_id:
             qs = qs.filter(salon_id=salon_id)
         if master_id:
             qs = qs.filter(master_id=master_id)
+        # Убираем фильтрацию по услуге - мастер не может быть занят разными услугами в одно время
         
         busy_slots = set(qs.filter(date=d).values_list('time', flat=True))
-        all_slots = set(dict(Order.APPOINTMENT_TIME).keys())
+        all_slots = set(dict(Appointment.APPOINTMENT_TIME).keys())
         
         if len(busy_slots) < len(all_slots):
             available_dates.append(str(d))

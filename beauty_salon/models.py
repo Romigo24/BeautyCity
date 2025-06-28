@@ -1,19 +1,18 @@
 from datetime import date
 
-from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-class UserProfile(AbstractUser):
+class Client(models.Model):
     phone = PhoneNumberField(
         verbose_name="Телефон",
         region="RU",
-        unique=True,
     )
-    avatar = models.ImageField(
-        upload_to="static/img/avatars/",
+    avatar = models.FileField(
+        upload_to="media/avatars/",
         null=True,
         blank=True,
     )
@@ -21,13 +20,14 @@ class UserProfile(AbstractUser):
         verbose_name="Согласие ОПД",
         default=False
     )
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
     def __str__(self):
-        return f"Пользователь с тел: {self.phone}"
+        return f"Клиент с тел: {self.phone}"
 
 
 class Service(models.Model):
@@ -44,11 +44,10 @@ class Service(models.Model):
         validators=[MinValueValidator(0)]
     )
     image = models.FileField(
-        upload_to="media/service_img/",
+        upload_to="media/salon_img/",
         verbose_name="Картинка",
         blank=True,
     )
-
     class Meta:
         verbose_name = "Услуга"
         verbose_name_plural = "Услуги"
@@ -91,7 +90,7 @@ class Master(models.Model):
         max_length=15,
         verbose_name="Мастер",
     )
-    image = models.FileField(
+    image = models.ImageField(
         verbose_name="Картинка",
         upload_to="media/master_img/",
         blank=True,
@@ -107,7 +106,6 @@ class Master(models.Model):
         null=True,
         blank=True,
     )
-    #########
     services = models.ManyToManyField(
         'Service',
         verbose_name="Оказываемые услуги",
@@ -120,7 +118,7 @@ class Master(models.Model):
         related_name="masters",
         blank=True,
     )
-    #######
+
     class Meta:
         verbose_name = "Мастер"
         verbose_name_plural = "Мастера"
@@ -146,44 +144,7 @@ class Master(models.Model):
             return f"{years} лет"
 
 
-class SalonServicePrice(models.Model):
-    salon = models.ForeignKey(
-        Salon,
-        related_name="salons",
-        verbose_name="Салон",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="services",
-        verbose_name="Услуга",
-        null=True,
-        blank=True,
-    )
-    master = models.ForeignKey(
-        Master,
-        on_delete=models.CASCADE,
-        related_name="masters",
-        verbose_name="Мастер",
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = "Услгуга в салоне"
-        verbose_name_plural = "Услгуги в салоне"
-        unique_together = [
-            ["master", "service", "salon"]
-        ]
-
-    def __str__(self):
-        return f"{self.salon.name} - {self.service.name} - {self.master.name}"
-
-
-class Order(models.Model):
+class Appointment(models.Model):
     PAYMENT_TYPE = (
         ("cash", "Наличностью"),
         ("e_pay", "Электронно"),
@@ -205,6 +166,8 @@ class Order(models.Model):
         ("18:00", "18:00"),
         ("19:00", "19:00"),
     )
+
+    # Основная информация о записи
     status = models.CharField(
         verbose_name="Статус записи",
         max_length=20,
@@ -215,6 +178,12 @@ class Order(models.Model):
         verbose_name="Телефон",
         region="RU",
     )
+    client_name = models.CharField(
+        verbose_name="Имя клиента",
+        max_length=100,
+        blank=True,
+        null=True,
+    )
     payment = models.CharField(
         verbose_name='Тип оплаты',
         max_length=15,
@@ -223,17 +192,6 @@ class Order(models.Model):
         blank=True,
         null=True,
     )
-    comment = models.TextField(
-        verbose_name="Комментарий",
-        max_length=250,
-        blank=True,
-        null=True
-    )
-    personal_data_consent = models.BooleanField(
-        verbose_name="Согласие ОПД",
-        default=False
-    )
-    ####
     date = models.DateField(
         verbose_name="Дата записи",
         null=True,
@@ -246,7 +204,19 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-    client = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Клиент")
+    comment = models.TextField(
+        verbose_name="Комментарий",
+        max_length=250,
+        blank=True,
+        null=True
+    )
+    personal_data_consent = models.BooleanField(
+        verbose_name="Согласие ОПД",
+        default=False
+    )
+    
+    # Связи с другими моделями
+    client = models.ForeignKey('Client', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Клиент")
     master = models.ForeignKey(
         Master,
         on_delete=models.CASCADE,
@@ -271,23 +241,21 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-    ####
-    class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказы"
 
-    # def __str__(self):
-    #     return f"Пользователь [{self.phone}]"
+    class Meta:
+        verbose_name = "Запись"
+        verbose_name_plural = "Записи"
+
     def __str__(self):
-        # if self.client.username:
-        return f"{self.client} [{self.phone}]"
-        # return f"Клиент [{self.phone}]"
+        if self.client_name:
+            return f"{self.client_name} [{self.phone}]"
+        return f"Клиент [{self.phone}]"
 
     def get_client_name(self):
         """Получить имя клиента из связанного Client или из поля client_name"""
-        if self.client and hasattr(self.client, 'username') and self.client:
-            return self.client
-        return self.client
+        if self.client and hasattr(self.client, 'user') and self.client.user:
+            return self.client.user.first_name or self.client_name
+        return self.client_name
 
     def get_client_phone(self):
         """Получить телефон клиента из связанного Client или из поля phone"""
@@ -299,7 +267,7 @@ class Order(models.Model):
         """Автоматически связываем с клиентом по телефону при сохранении и проверяем дублирование"""
         # Проверяем дублирование только для новых записей с полными данными
         if not self.pk and self.date and self.time and self.master and self.salon:
-            existing = Order.objects.filter(
+            existing = Appointment.objects.filter(
                 date=self.date,
                 time=self.time,
                 master=self.master,
@@ -313,65 +281,11 @@ class Order(models.Model):
         # Автоматически связываем с клиентом по телефону
         if self.phone and not self.client:
             try:
-                self.client = UserProfile.objects.get(phone=self.phone)
-            except UserProfile.DoesNotExist:
+                self.client = Client.objects.get(phone=self.phone)
+            except Client.DoesNotExist:
                 pass
         
         super().save(*args, **kwargs)
-
-
-class OrderService(models.Model):
-    ORDER_TIME = (
-        ("10:00", "10:00"),
-        ("11:00", "11:00"),
-        ("12:00", "12:00"),
-        ("13:00", "13:00"),
-        ("15:00", "15:00"),
-        ("16:00", "16:00"),
-        ("17:00", "17:00"),
-        ("18:00", "18:00"),
-        ("19:00", "19:00"),
-    )
-    master = models.ForeignKey(
-        Master,
-        on_delete=models.CASCADE,
-        related_name="master_services",
-        verbose_name="Мастер",
-    )
-    salon = models.ForeignKey(
-        Salon,
-        related_name="salon_services",
-        verbose_name="Салон",
-        on_delete=models.CASCADE,
-    )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name="orders",
-        verbose_name="Запись",
-    )
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="service_items",
-        verbose_name="Услуга",
-        null=True,
-        blank=True,
-    )
-    record_time_at = models.CharField(
-        verbose_name="Время записи",
-        max_length=20,
-        choices=ORDER_TIME,
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        verbose_name = "элемент записи"
-        verbose_name_plural = "элементы записи"
-
-    def __str__(self):
-        return f"{self.master.name}"
 
 
 class Feedback(models.Model):
@@ -381,6 +295,7 @@ class Feedback(models.Model):
         related_name='feedbacks',
         verbose_name="Мастер",
         null=True,
+        blank=True,
     )
     client = models.CharField(
         verbose_name="Кто оставил отзыв",
@@ -399,8 +314,7 @@ class Feedback(models.Model):
         max_length=250,)
     create_at = models.DateField(
         verbose_name="Дата создания",
-        blank=True,
-        null=True
+        auto_now_add=True,
     )
 
     class Meta:
@@ -408,4 +322,4 @@ class Feedback(models.Model):
         verbose_name_plural = "Отзывы"
 
     def __str__(self):
-        return f"{self.comment}"
+        return f"Отзыв от {self.client}"

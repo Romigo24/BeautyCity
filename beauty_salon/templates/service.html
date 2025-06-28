@@ -80,9 +80,9 @@
 					</div>
 					<div class="col-2 col-md-2 col-lg-3">
 						{% if user.is_authenticated %}
-							<div class="accaunt__settings fic" style="width: 50px; height: 50px;">
+							<div class="accaunt__settings fic">
 								{% if user.avatar %}
-									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
 								{% else %}
 									<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
 								{% endif %}
@@ -108,7 +108,6 @@
 	</header>
 	<section id="service">
 		<div class="container">
-			
 			<div class="service">
 				<div class="breadCrumbs">
 					<a href="/" class="breadCrumbs__item">На главную</a>
@@ -118,7 +117,6 @@
 					<button class="service__btn btn">Запись по телефону</button>
 				</div>
 				<form action="#" class="service__form">
-					{% csrf_token %}
 					<div class="service__form_block service__salons">
 						<button class="accordion">(Выберите салон)</button>
 						<div class="panel salons-panel"></div>

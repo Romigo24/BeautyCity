@@ -6,4 +6,4 @@ def validate_phone(phone):
         phone_obj = parse(phone, "RU")
         return is_valid_number(phone_obj)
     except NumberParseException:
-        return False
+        return False 

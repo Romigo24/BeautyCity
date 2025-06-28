@@ -432,9 +432,7 @@ color: #F6A912;
 
 box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.02);
 border-radius: 10px;
-padding: 24px;
-min-height: 250px;
-position: relative;
+padding: 15px;
 }
 .reviews__name {
 	font-weight: 600;
@@ -467,15 +465,12 @@ opacity: 0.8;
 line-height: 127.52%;
 /* or 15px */
 
-right: 24px;
-
 /* черный */
 
 color: #323232;
 
 opacity: 0.3;
-position: absolute;
-bottom: 19px;
+margin-top: 10px;
 }
 /*End reviews*/
 /* contacts*/
@@ -1036,12 +1031,12 @@ color: #323232;
 opacity: 0.3;
 }
 
-.service__form .selected {
-	background: #FFF9E4;
-	box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.02);
-	/*!font-size: 20px;*/
+.service-item.selected {
+  background: #FFF9E4;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+  transition: background 0.2s, box-shadow 0.2s;
 }
-
 
 .accordion:hover {
   background-color: #ccc;
@@ -1188,20 +1183,20 @@ opacity: 0.3;
 }
 .accordion__block_master {
 	font-weight: 500;
-	font-size: 20px;
-	line-height: 127.52%;
-	/* or 26px */
+ font-size: 20px;
+ line-height: 127.52%;
+ /* or 26px */
 
-	display: flex;
-	align-items: center;
+ display: flex;
+ align-items: center;
 
-	/* черный */
+ /* черный */
 
-	color: #323232;
+ color: #323232;
 }
 .accordion__block_prof {
 	margin-left: 30px;
-	font-weight: 500;
+ font-weight: 500;
 font-size: 12px;
 line-height: 127.52%;
 /* or 15px */
@@ -1837,9 +1832,9 @@ color: #FFCD07;
 .authPopup, .confirmPopup{text-align: center;padding-top: 35px;padding-bottom: 46px;padding-right: 0;padding-left: 0;}
 .authPopup__title {
 	font-weight: 600;
-	font-size: 24px;
-	line-height: 127.52%;
-	color: #323232;
+ font-size: 24px;
+ line-height: 127.52%;
+ color: #323232;
 }
 .authPopup__title{
 	margin-bottom: 35px;
@@ -1890,14 +1885,14 @@ height: 53px;
 }
 .confirmPopup__sms {
 	font-weight: 400;
-	font-size: 16px;
-	line-height: 127.52%;
-	/* or 20px */
+ font-size: 16px;
+ line-height: 127.52%;
+ /* or 20px */
 
 
-	/* черный */
+ /* черный */
 margin-bottom: 10px;
-	color: #323232;
+ color: #323232;
 }
 .popup__link {
 font-weight: 500;
@@ -1920,9 +1915,9 @@ text-align: left;
 }
 .popup__intro {
 	font-weight: 400;
-	font-size: 12px;
-	line-height: 127.52%;
-	color: #323232;
+ font-size: 12px;
+ line-height: 127.52%;
+ color: #323232;
 }
 .tipsPopup__form_intro {
 	margin-bottom: 5px;
@@ -1953,7 +1948,7 @@ height: 50px;
 height: 53px;}
 .paymentPopup {
 	font-size: 40px;
-	margin-bottom: 20px;
+ margin-bottom: 20px;
 }
 .paymentPopup__title {
 	margin-bottom: 20px;

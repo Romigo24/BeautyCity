@@ -278,7 +278,7 @@ def view_manager(request):
 
     last_day_prev_month = first_day_current_month - timedelta(seconds=1)
     first_day_prev_month = last_day_prev_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
+
     data_last_month = Appointment.objects.select_related(
         "client", "master", "salon", "service").filter(
             status__in=["recorded", "completed"],
@@ -287,10 +287,7 @@ def view_manager(request):
             date__year=current_year
     )
 
-    visits_this_year = Appointment.objects.filter(
-        status__in=["recorded", "completed"],
-        date__year=current_year
-    ).count()
+    visits_this_year = Appointment.objects.filter(date__year=current_year).count()
 
     total_payment_last_month = sum(order.service.price for order in data_last_month if order.service)
     visits_last_month = data_last_month.count()

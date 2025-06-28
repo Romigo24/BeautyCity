@@ -152,9 +152,9 @@
 					</div>
 					</div>
 				</div>
-				
-				
-				
+
+
+
 			</div>
 		</div>
 	</header>
@@ -229,8 +229,8 @@
 								<div class="notes__pay_title">Оплата услуг</div>
 								<div class="notes__pay_info">Вы можете оплатить услуги прямо сейчас онлайн или расплатиться  в салоне</div>
 							</div>
-							
-							
+
+
 							<div class="notes__pay_block">
 								<div class="notes__pay_intro">Сумма оплаты</div>
 								<div class="notes__pay_sum">3 900 руб</div>
@@ -248,7 +248,7 @@
 											<div class="notes__main_number">Запись №{{ appointment.id }}</div>
 											<div class="notes__main_address">{{ appointment.salon.address }}</div>
 										</div>
-										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay unPaid">{% if not appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 									<div class="notes__main_block__main ">
 										<div class="notes__main_block__main_items">
@@ -277,7 +277,7 @@
 										{% if appointment.payment %}
 										<button class="notes__footer_btn payPopupOpen">Оплатить</button>
 										{% endif %}
-										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay unPaid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 								</div>
 							</div>
@@ -329,7 +329,7 @@
 									<div class="notes__footer fic">
 										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link">Оставить отзыв</a>
 										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
-										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
+										<div class="notes__main_pay payid">{% if appointment.payment %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
 								</div>
 							</div>
@@ -338,6 +338,7 @@
 							{% endfor %}
 						</div>
 					</div>
+					<div class="col-md-12 col-lg-3 dec" >
 					{% comment %} <div class="col-md-12 col-lg-3 dec" >
 						<div class="notes__pay" >
 							<button class="notes__pay_btn">Оплатить онлайн</button>
@@ -345,6 +346,7 @@
 							<div class="notes__pay_intro">Сумма оплаты</div>
 							<div class="notes__pay_sum">3900 руб</div>
 						</div>
+					</div>
 					</div> {% endcomment %}
 				</div>
 			</div>
@@ -372,9 +374,9 @@
 					<div class="footer__contact">
 						<div class="row">
 							<div class="col-md-4">
-								
+
 									<div class="footer__data">с 10:00 до 20:00  без выходных</div>
-									
+
 							</div>
 							<div class="col-md-3">
 								<a href="tel:+79179023800" class="contacts__info_tel">+7 (917) 902 38 00</a>
@@ -397,7 +399,7 @@
 					<div class="footer__bottom">
 						<div class="row">
 							<div class="col-md-4 col-lg-3">
-								<a href="#" class="footer__link">Политика конфиденциальности</a>
+								<a href="{% url 'beauty_salon:privacy_policy' %}" class="footer__link" target="_blank">Политика конфиденциальности</a>
 							</div>
 							<div class="col-md-3">
 								<div class="footer__copy">2022. Все права защищены</div>
@@ -411,11 +413,11 @@
 								</div>
 							</div>
 						</div>
-						
-						
-						
+
+
+
 					</div>
-					
+
 				</div>
 			</div>
 		</div>
@@ -466,8 +468,8 @@
 				<input type="text" name="dateVis" class="paymentPopup__form_input popup__input" placeholder="Дата посещения" required="">
 				<textarea name="popupTextarea" class="reviewPopup__form_textarea" placeholder="Текст отзыва"></textarea>
 				<div class="contacts__form_checkboxBlock fic">
-					<input type="checkbox" class="contacts__form_checkbox" checked="">
-					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+					<input type="checkbox" class="contacts__form_checkbox" checked="" required>
+					<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с <a href="{% url 'beauty_salon:privacy_policy' %}" target="_blank">политикой конфиденциальности</a></span>
 				</div>
 				<button class="tipsPopup__btn popup__btn">Оплатить</button>
 			</form>
@@ -479,4 +481,3 @@
 	<script src="{% static 'js/jquery.arcticmodal-0.3.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
 </body>
-</html>

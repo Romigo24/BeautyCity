@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from beauty_salon.utils import get_month_info
 from django.contrib import messages
@@ -146,19 +146,28 @@ def service_finally(request):
         return render(request, 'serviceFinally.html', context)
 
 
+@login_required
 def notes(request):
+
     if not request.user.is_authenticated:
         return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
-
     try:
         client = Client.objects.get(user=request.user)
     except Client.DoesNotExist:
         return render(request, 'notes.html', {'upcoming_appointments': [], 'past_appointments': []})
 
-    from datetime import date
     today = date.today()
-    upcoming_appointments = Appointment.objects.filter(client=client, date__gte=today, status__in=['recorded']).order_by('date', 'time')
-    past_appointments = Appointment.objects.filter(client=client, date__lt=today, status__in=['completed', 'canceled']).order_by('-date', '-time')
+    upcoming_appointments = Appointment.objects.filter(
+        client=client, 
+        date__gte=today, 
+        status__in=['recorded']
+    ).order_by('date', 'time')
+
+    past_appointments = Appointment.objects.filter(
+        client=client, 
+        date__lt=today, 
+        status__in=['completed', 'canceled']
+    ).order_by('-date', '-time')
 
     return render(request, 'notes.html', {
         'upcoming_appointments': upcoming_appointments,

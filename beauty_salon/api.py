@@ -65,6 +65,7 @@ def api_timeslots(request):
     master_id = request.GET.get('master')
     service_id = request.GET.get('service')
     date = request.GET.get('date')
+    
     all_slots = dict(Appointment.APPOINTMENT_TIME).keys()
     
     # Фильтруем записи, исключая отмененные и консультации
@@ -74,8 +75,9 @@ def api_timeslots(request):
         qs = qs.filter(salon_id=salon_id)
     if master_id:
         qs = qs.filter(master_id=master_id)
-    if service_id:
-        qs = qs.filter(service_id=service_id)
+    # Убираем фильтрацию по услуге - мастер не может быть занят разными услугами в одно время
+    # if service_id:
+    #     qs = qs.filter(service_id=service_id)
     if date:
         qs = qs.filter(date=date)
     
@@ -102,6 +104,7 @@ def api_dates(request):
             qs = qs.filter(salon_id=salon_id)
         if master_id:
             qs = qs.filter(master_id=master_id)
+        # Убираем фильтрацию по услуге - мастер не может быть занят разными услугами в одно время
         
         busy_slots = set(qs.filter(date=d).values_list('time', flat=True))
         all_slots = set(dict(Appointment.APPOINTMENT_TIME).keys())

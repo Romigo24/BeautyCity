@@ -147,7 +147,10 @@ $(document).ready(function() {
 			if (window.datepickerInstance) {
 				window.datepickerInstance.update({
 					isDateDisabled: function(date) {
-						const d = date.toISOString().slice(0, 10);
+						const year = date.getFullYear();
+						const month = String(date.getMonth() + 1).padStart(2, '0');
+						const day = String(date.getDate()).padStart(2, '0');
+						const d = `${year}-${month}-${day}`;
 						return !availableDates.includes(d);
 					}
 				});
@@ -268,7 +271,11 @@ $(document).ready(function() {
 	window.datepickerInstance = new AirDatepicker('#datepickerHere', {
 		onSelect({date}) {
 			if (date) {
-				selected.date = date.toISOString().slice(0, 10);
+				// Используем более безопасный метод форматирования даты
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, '0');
+				const day = String(date.getDate()).padStart(2, '0');
+				selected.date = `${year}-${month}-${day}`;
 				// Обновляем списки без сброса текущих выборов
 				updateSalons(false);
 				updateMasters(false);
@@ -279,7 +286,11 @@ $(document).ready(function() {
 		},
 		isDateDisabled: function(date) {
 			if (availableDates.length === 0) return false;
-			const d = date.toISOString().slice(0, 10);
+			// Используем тот же метод форматирования
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const d = `${year}-${month}-${day}`;
 			return !availableDates.includes(d);
 		}
 	});

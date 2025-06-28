@@ -35,13 +35,21 @@
 						<div class="col-md-3">
 							<nav>
 								<div class="accaunt__left">
-							<div class="accaunt__ava fic">
-								<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
-								<span class="accaunt__ava_name">Алиса И.</span>
+							<div class="accaunt__ava fic" style="width: 50px; height: 50px;">
+								{% if user.avatar %}
+									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								{% else %}
+									<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
+								{% endif %}
+								<span class="accaunt__ava_name">{{ user.username }}</span>
 							</div>
-							<div class="accaunt__settings fic">
-								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
-								<a href="#" class="accaunt__settings_out">Выйти</a>
+							<div class="accaunt__settings fic" style="gap: 8px;">
+								{% if is_manager %}
+									<a href="{% url 'beauty_salon:manager' %}" class="accaunt__settings_out">Панель менеджера</a>
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% else %}
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% endif %}
 							</div>
 							<nav>
 								<div class="accaunt__menu_title">МЕНЮ</div>
@@ -131,7 +139,7 @@
 						<a href="tel:+79179023800"><button class="header__block_btn">Перезвоните мне</button></a>
 						<div class="header__block_auth">
 							<img src="{% static 'img/avatars/1.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Алиса И.</span>
+							<span class="header__block_auth__intro">{% if user.is_authenticated %}{{ user.username }}{% else %}Войти{% endif %}</span>
 						</div>
 					</div>
 					</div>
@@ -148,13 +156,21 @@
 				<div class="row">
 					<div class="col-md-2">
 						<div class="accaunt__left">
-							<div class="accaunt__ava fic">
-								<img src="{% static 'img/avatars/1.svg' %}" alt="avatar" class="accaunt__ava_img">
-								<span class="accaunt__ava_name">Алиса И.</span>
+							<div class="accaunt__ava fic" style="width: 50px; height: 50px;">
+								{% if user.avatar %}
+									<img src="{{ user.avatar.url }}" alt="avatar" class="accaunt__ava_img">
+								{% else %}
+									<img src="{% static 'img/acc.svg' %}" alt="avatar" class="accaunt__ava_img">
+								{% endif %}
+								<span class="accaunt__ava_name">{{ user.username }}</span>
 							</div>
-							<div class="accaunt__settings fic">
-								<a href="#" class="accaunt__settings_intro">Изменить профиль</a>
-								<a href="#" class="accaunt__settings_out">Выйти</a>
+							<div class="accaunt__settings fic" style="gap: 8px;">
+								{% if is_manager %}
+									<a href="{% url 'beauty_salon:manager' %}" class="accaunt__settings_out">Панель менеджера</a>
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% else %}
+									<a href="{% url 'beauty_salon:logout' %}" class="accaunt__settings_out">Выйти</a>
+								{% endif %}
 							</div>
 							<nav>
 								<div class="accaunt__menu_title">МЕНЮ</div>
@@ -250,7 +266,7 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="#" class="notes__footer_link rewiewPopupOpen">Оставить отзыв</a>
+										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link">Оставить отзыв</a>
 										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
 										<button class="notes__footer_btn payPopupOpen">Оплатить</button>
 										<div class="notes__main_pay unPaid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
@@ -266,7 +282,11 @@
 							<div class="notes__main_title">ПРОШЕДШИЕ</div>
 							{% for appointment in past_appointments %}
 							<div class="notes__main_block">
+								{% if appointment.service.image %}
+								<img src="{{ appointment.service.image.url }}" alt="service1" class="notes__main_block__img">
+								{% else %}
 								<img src="{% static 'img/services/service1.svg' %}" alt="service1" class="notes__main_block__img">
+								{% endif %}
 								<div class="notes__main_block__elems">
 									<div class="notes__main_block__header fic">
 										<div class="notes__main_block__header__itesm fic">
@@ -299,7 +319,7 @@
 									</div>
 									<hr class="notes__block_hr">
 									<div class="notes__footer fic">
-										<a href="#" class="notes__footer_link rewiewPopupOpen">Оставить отзыв</a>
+										<a href="{% url 'beauty_salon:feedback' %}" class="notes__footer_link">Оставить отзыв</a>
 										<a href="#" class="notes__footer_link tipsPopupOpen">Чаевые</a>
 										<div class="notes__main_pay payid">{% if appointment.payment == 'e_pay' %}ОПЛАЧЕНО{% else %}НЕОПЛАЧЕНО{% endif %}</div>
 									</div>
@@ -376,10 +396,10 @@
 							</div>
 							<div class="col-md-3 col-lg-2">
 								<div class="footer__social fic">
-									<a href=""><img src="img/waGray.svg" alt="wa" class="contacts__social_icon"></a>
-									<a href=""><img src="img/vkGray.svg" alt="vk" class="contacts__social_icon"></a>
-									<a href=""><img src="img/tgGray.svg" alt="tg" class="contacts__social_icon"></a>
-									<a href=""><img src="img/instaGray.svg" alt="insta" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/waGray.svg' %}" alt="wa" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/vkGray.svg' %}" alt="vk" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/tgGray.svg' %}" alt="tg" class="contacts__social_icon"></a>
+									<a href=""><img src="{% static 'img/instaGray.svg' %}" alt="insta" class="contacts__social_icon"></a>
 								</div>
 							</div>
 						</div>
@@ -394,7 +414,7 @@
 	</footer>
 	<div style="display: none;">
 		<div class="box-modal paymentPopup popup" id="paymentModal">
-			<div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
 			<div class="popup__title paymentPopup__title">Оплата</div>
 			<form action="#" class="paymentPopup__form">
 				<div class="paymentPopup__form_intro popup__intro">номер карты</div>
@@ -407,28 +427,28 @@
 					<input type="text" name="fname" class="paymentPopup__form_inputMid popup__input" placeholder="Имя владельца" required="">
 					<input type="text" name="cvc" class="tipsPopup__form_inputMin popup__input" placeholder="CVC" required="">
 				</div>
-				<div class="paymentPopup__form_intro popup__intro">Ваш e-mail(необязательно)</div>
-				<input type="email" name="tel" class="paymentPopup__form_input popup__input" placeholder="pochta@mail.ru">
-				<button class="tipsPopup__btn popup__btn">Оплатить</button>
+				<button type="submit" class="paymentPopup__form_btn popup__btn">Оплатить</button>
 			</form>
 		</div>
-	</div>
-	<div style="display: none;">
-	    <div class="box-modal tipsPopup popup" id="tipsModal">
-	        <div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
-	        <div class="">
-				<div class="popup__title tipsPopup__title">Чаевые</div>
-				<form action="#" class="tipsPopup__form">
-					<div class="tipsPopup__form_intro popup__intro">Введите сумму чаевых</div>
-					<input type="text" class="tipsPopup__form_input popup__input" placeholder="0.00" required="">
-					<button class="tipsPopup__btn popup__btn">Далее</button>
-				</form>
-			</div>
-	    </div>
-	</div>
-	<div style="display: none;">
-		<div class="box-modal reviewPopup popup" id="reviewModal">
-			<div class="box-modal_close arcticmodal-close"><img src="img/x.svg" alt="x"></div>
+		<div class="box-modal tipsPopup popup" id="tipsModal">
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
+			<div class="popup__title tipsPopup__title">Чаевые</div>
+			<form action="#" class="tipsPopup__form">
+				<div class="tipsPopup__form_intro popup__intro">сумма чаевых</div>
+				<input type="text" name="tel" class="tipsPopup__form_input popup__input" placeholder="Введите сумму" required="">
+				<div class="tipsPopup__form_block fic">
+					<input type="text" name="mm" class="tipsPopup__form_inputMin popup__input" placeholder="ММ" required="">
+					<input type="text" name="gg" class="tipsPopup__form_inputMin popup__input" placeholder="ГГ" required="">
+				</div>
+				<div class="tipsPopup__form_elems fic">
+					<input type="text" name="fname" class="tipsPopup__form_inputMid popup__input" placeholder="Имя владельца" required="">
+					<input type="text" name="cvc" class="tipsPopup__form_inputMin popup__input" placeholder="CVC" required="">
+				</div>
+				<button type="submit" class="tipsPopup__form_btn popup__btn">Оплатить</button>
+			</form>
+		</div>
+		<div class="box-modal rewiewPopup popup" id="reviewModal">
+			<div class="box-modal_close arcticmodal-close"><img src="{% static 'img/x.svg' %}" alt="x"></div>
 			<div class="popup__title reviewPopup__title">Отзыв</div>
 			<form action="#" class="reviewPopup__form">
 				<input type="text" name="fname" class="paymentPopup__form_input popup__input" placeholder="Введите имя" required="">

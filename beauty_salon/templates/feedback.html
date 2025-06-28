@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Обратная связь</title>
+	<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+
+<body style="display: flex; justify-content: center; align-items: center; min-height: 60vh; background-color:rgb(239, 243, 229);">
+	<div class="reviewPopup popup">
+		{% if errors %}
+		<div class="alert alert-danger" style="color: red; margin-bottom: 1em;">
+			<strong>Пожалуйста, исправьте ошибки:</strong>
+			<ul>
+			{% for field, field_errors in errors.items %}
+				{% for error in field_errors %}
+					<li>{{ error }}</li>
+				{% endfor %}
+			{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
+		<div class="popup__title reviewPopup__title">Отзыв</div>
+		<form method="post" action="#" class="reviewPopup__form">
+			{% csrf_token %}
+			<select name="master_id" class="popup__input" required>
+				<option value="" disabled {% if not data.master_id %}selected{% endif %}>Выберите мастера</option>
+				{% for master in masters %}
+					<option value="{{ master.id }}" {% if data.master_id == master.id|stringformat:"s" %}selected{% endif %}>{{ master.name }}</option>
+				{% endfor %}
+			</select>
+			<input type="text" name="fname" class="paymentPopup__form_input popup__input" placeholder="Введите имя" required>
+			<div class="contacts__form_inputBlock">
+				<input type="contact_tel" name="tel" class="contacts__form_iunput" placeholder="+7(999)999--99-99" required="">
+			</div>
+			<input type="text" name="dateVis" class="paymentPopup__form_input popup__input" placeholder="Дата посещения YYYY-MM-DD" required>
+			<textarea name="popupTextarea" class="reviewPopup__form_textarea" placeholder="Текст отзыва"></textarea>
+			<div class="contacts__form_checkboxBlock fic">
+				<input type="checkbox" name="checkbox" class="contacts__form_checkbox" checked required>
+				<span class="contacts__form_checkboxBlock__intro">Я согласен(а) с политикой конфидециоальности</span>
+			</div>
+			<button class="tipsPopup__btn popup__btn">Отправить</button>
+			<br>
+			<br>
+			<button type="button" class="tipsPopup__btn popup__btn" onclick="window.location.href='{% url 'beauty_salon:notes' %}'">Назад</button>
+
+		</form> 
+	</div>
+
+</body>
+</html> 

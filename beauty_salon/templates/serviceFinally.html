@@ -85,7 +85,7 @@
 						<button class="header__block_btn">Перезвоните мне</button>
 						<div class="header__block_auth">
 							<img src="{% static 'img/acc.svg' %}" alt="account" class="header__account_img">
-							<span class="header__block_auth__intro">Войти</span>
+							<span class="header__block_auth__intro">{% if user.is_authenticated %}{{ user.username }}{% else %}Войти{% endif %}</span>
 						</div>
 					</div>
 					</div>
